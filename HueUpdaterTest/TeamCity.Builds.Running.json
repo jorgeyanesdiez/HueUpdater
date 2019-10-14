@@ -1,0 +1,16 @@
+{
+  "count": 1,
+  "build": [
+    {
+      "id": 12345,
+      "number": "1",
+      "running": true,
+      "percentageComplete": 25,
+      "status": "SUCCESS",
+      "buildTypeId": "bt1",
+      "startDate": "20190101T000000+0000",
+      "href": "/app/rest/builds/id:12345",
+      "webUrl": "http://localhost/viewLog.html?buildId=12345&buildTypeId=bt1"
+    }
+  ]
+}

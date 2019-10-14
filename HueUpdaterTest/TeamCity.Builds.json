@@ -1,0 +1,12 @@
+{
+  "buildType": [
+    {
+      "id": "bt1",
+      "name": "JOB1",
+      "href": "/app/rest/buildTypes/id:bt1",
+      "projectName": "PROJECT 1",
+      "projectId": "project1",
+      "webUrl": "http://localhost/viewType.html?buildTypeId=bt1"
+    }
+  ]
+}
