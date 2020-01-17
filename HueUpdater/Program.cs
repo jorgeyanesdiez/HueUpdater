@@ -1,7 +1,5 @@
 ﻿using System;
-using System.IO;
 using System.Linq;
-using System.Reflection;
 using System.Threading.Tasks;
 using Flurl.Http;
 using Flurl.Http.Configuration;
@@ -116,7 +114,7 @@ namespace HueUpdater
         private AppSettings GetAppSettings()
         {
             var configRoot = new ConfigurationBuilder()
-                .SetBasePath(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location))
+                .SetBasePath(Environment.CurrentDirectory)
                 .AddJsonFile("appsettings.json")
                 .AddUserSecrets<Program>()
                 .Build();
