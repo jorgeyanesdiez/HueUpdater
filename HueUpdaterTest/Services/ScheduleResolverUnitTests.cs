@@ -58,9 +58,10 @@ namespace HueUpdater.Services
 
 
         [Theory]
-        [InlineData("2019-01-01", "First")]
-        [InlineData("2019-01-02", "Second")]
-        [InlineData("2019-01-03", "Third")]
+        [InlineData("2020-01-01", "First")]
+        [InlineData("2020-01-02", "Second")]
+        [InlineData("2020-01-03", "Second")]
+        [InlineData("2020-01-04", "Third")]
         public void Resolve_GivenData_IsExpected(string date, string expected)
         {
             var sut = new ScheduleResolver(Calendar);
@@ -70,9 +71,10 @@ namespace HueUpdater.Services
 
 
         [Theory]
-        [InlineData("2019-01-01", null)]
-        [InlineData("2019-01-02", null)]
-        [InlineData("2019-01-03", "Third")]
+        [InlineData("2020-01-01", null)]
+        [InlineData("2020-01-02", null)]
+        [InlineData("2020-01-03", null)]
+        [InlineData("2020-01-04", "Third")]
         public void ResolveDayOverridenSchedule_GivenData_IsExpected(string date, string expected)
         {
             var sut = new ScheduleResolver(Calendar);
@@ -82,9 +84,10 @@ namespace HueUpdater.Services
 
 
         [Theory]
-        [InlineData("2019-01-01", "First")]
-        [InlineData("2019-01-02", "Second")]
-        [InlineData("2019-01-03", null)]
+        [InlineData("2020-01-01", "First")]
+        [InlineData("2020-01-02", "Second")]
+        [InlineData("2020-01-03", "Second")]
+        [InlineData("2020-01-04", null)]
         public void ResolveDefaultSchedule_GivenData_IsExpected(string date, string expected)
         {
             var sut = new ScheduleResolver(Calendar);
@@ -117,12 +120,12 @@ namespace HueUpdater.Services
             {
                 Defaults = new Dictionary<string, DateRangeSettings[]>
                 {
-                    { "First", new[] { new DateRangeSettings { Start = "2019-01-01", Finish = "2019-01-02" } } },
-                    { "Second", new[] { new DateRangeSettings { Start = "2019-01-02", Finish = "2019-01-03" } } },
+                    { "First", new[] { new DateRangeSettings { Start = "2020-01-01", Finish = "2020-01-01" } } },
+                    { "Second", new[] { new DateRangeSettings { Start = "2020-01-02", Finish = "2020-01-03" } } },
                 },
                 DayOverrides = new Dictionary<string, string[]>
                 {
-                    { "Third", new[] { "Thursday" } }
+                    { "Third", new[] { "Saturday" } }
                 }
             };
             return calendar;

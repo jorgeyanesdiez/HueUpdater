@@ -70,7 +70,7 @@ namespace HueUpdater.Services
                     var isStartDateParsed = DateTime.TryParse(dateRange.Start, out var startDate);
                     var isFinishDateParsed = DateTime.TryParse(dateRange.Finish, out var finishDate);
                     var result = isStartDateParsed && isFinishDateParsed &&
-                        date.Date >= startDate && date.Date < finishDate;
+                        date.Date >= startDate && date.Date <= finishDate;
                     return result;
                 })
             ).Key;
