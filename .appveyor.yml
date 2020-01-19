@@ -1,4 +1,4 @@
-version: 0.2.0.{build}
+version: 0.3.0.{build}
 image: Visual Studio 2019
 environment:
   SonarCloudToken:
@@ -7,7 +7,7 @@ install:
 - ps: dotnet tool install --global dotnet-sonarscanner
 build_script:
 - ps: >-
-    dotnet sonarscanner begin /d:"sonar.login=$env:SonarCloudToken" /d:"sonar.host.url=https://sonarcloud.io" /k:"jorgeyanesdiez_HueUpdater" /o:"jorgeyanesdiez" /v:"0.2" /d:"sonar.cs.opencover.reportsPaths=./build/coverage.opencover.xml"
+    dotnet sonarscanner begin /d:"sonar.login=$env:SonarCloudToken" /d:"sonar.host.url=https://sonarcloud.io" /k:"jorgeyanesdiez_HueUpdater" /o:"jorgeyanesdiez" /v:"0.3" /d:"sonar.cs.opencover.reportsPaths=./build/coverage.opencover.xml"
 
     dotnet build
 test_script:
