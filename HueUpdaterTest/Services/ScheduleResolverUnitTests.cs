@@ -58,10 +58,17 @@ namespace HueUpdater.Services
 
 
         [Theory]
-        [InlineData("2020-01-01", "First")]
-        [InlineData("2020-01-02", "Second")]
-        [InlineData("2020-01-03", "Second")]
-        [InlineData("2020-01-04", "Third")]
+        [InlineData("2020-01-01", "FirstDay")]
+        [InlineData("2020-01-06", "SecondWeek")]
+        [InlineData("2020-01-07", "SecondWeek")]
+        [InlineData("2020-01-08", "SecondWeek")]
+        [InlineData("2020-01-09", "SecondWeek")]
+        [InlineData("2020-01-10", "SecondWeek")]
+        [InlineData("2020-01-11", "Weekends")]
+        [InlineData("2020-01-12", "Weekends")]
+        [InlineData("2020-02-15", "AllFebruary")]
+        [InlineData("2020-02-16", "AllFebruary")]
+        [InlineData("2020-03-01", "Weekends")]
         public void Resolve_GivenData_IsExpected(string date, string expected)
         {
             var sut = new ScheduleResolver(Calendar);
@@ -72,9 +79,16 @@ namespace HueUpdater.Services
 
         [Theory]
         [InlineData("2020-01-01", null)]
-        [InlineData("2020-01-02", null)]
-        [InlineData("2020-01-03", null)]
-        [InlineData("2020-01-04", "Third")]
+        [InlineData("2020-01-06", null)]
+        [InlineData("2020-01-07", null)]
+        [InlineData("2020-01-08", null)]
+        [InlineData("2020-01-09", null)]
+        [InlineData("2020-01-10", null)]
+        [InlineData("2020-01-11", "Weekends")]
+        [InlineData("2020-01-12", "Weekends")]
+        [InlineData("2020-02-15", "Weekends")]
+        [InlineData("2020-02-16", "Weekends")]
+        [InlineData("2020-03-01", "Weekends")]
         public void ResolveDayOverridenSchedule_GivenData_IsExpected(string date, string expected)
         {
             var sut = new ScheduleResolver(Calendar);
@@ -84,10 +98,17 @@ namespace HueUpdater.Services
 
 
         [Theory]
-        [InlineData("2020-01-01", "First")]
-        [InlineData("2020-01-02", "Second")]
-        [InlineData("2020-01-03", "Second")]
-        [InlineData("2020-01-04", null)]
+        [InlineData("2020-01-01", "FirstDay")]
+        [InlineData("2020-01-06", "SecondWeek")]
+        [InlineData("2020-01-07", "SecondWeek")]
+        [InlineData("2020-01-08", "SecondWeek")]
+        [InlineData("2020-01-09", "SecondWeek")]
+        [InlineData("2020-01-10", "SecondWeek")]
+        [InlineData("2020-01-11", "SecondWeek")]
+        [InlineData("2020-01-12", "SecondWeek")]
+        [InlineData("2020-02-15", "AllFebruary")]
+        [InlineData("2020-02-16", "AllFebruary")]
+        [InlineData("2020-03-01", null)]
         public void ResolveDefaultSchedule_GivenData_IsExpected(string date, string expected)
         {
             var sut = new ScheduleResolver(Calendar);
@@ -120,13 +141,15 @@ namespace HueUpdater.Services
             {
                 Defaults = new Dictionary<string, DateRangeSettings[]>
                 {
-                    { "First", new[] { new DateRangeSettings { Start = "2020-01-01", Finish = "2020-01-01" } } },
-                    { "Second", new[] { new DateRangeSettings { Start = "2020-01-02", Finish = "2020-01-03" } } },
+                    { "FirstDay", new[] { new DateRangeSettings { Start = "2020-01-01", Finish = "2020-01-01" } } },
+                    { "SecondWeek", new[] { new DateRangeSettings { Start = "2020-01-06", Finish = "2020-01-12" } } },
+                    { "AllFebruary", new[] { new DateRangeSettings { Start = "2020-02-01", Finish = "2020-02-29" } } }
                 },
                 DayOverrides = new Dictionary<string, string[]>
                 {
-                    { "Third", new[] { "Saturday" } }
-                }
+                    { "Weekends", new[] { "Saturday", "Sunday" } }
+                },
+                DayOverridesExclusions = new List<string>() { "AllFebruary" }
             };
             return calendar;
         }

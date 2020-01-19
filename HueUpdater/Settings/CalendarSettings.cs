@@ -10,6 +10,7 @@ namespace HueUpdater.Settings
     {
         public IDictionary<string, DateRangeSettings[]> Defaults { get; set; } = new Dictionary<string, DateRangeSettings[]>();
         public IDictionary<string, string[]> DayOverrides { get; set; } = new Dictionary<string, string[]>();
+        public IList<string> DayOverridesExclusions { get; set; } = new List<string>();
     }
 
 }

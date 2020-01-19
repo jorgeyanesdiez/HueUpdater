@@ -32,7 +32,15 @@ namespace HueUpdater.Services
         /// <inheritdoc/>
         public string Resolve(DateTime date)
         {
-            var schedule = ResolveDayOverridenSchedule(date) ?? ResolveDefaultSchedule(date);
+            var overridenSchedule = ResolveDayOverridenSchedule(date);
+            var defaultSchedule = ResolveDefaultSchedule(date);
+            var schedule = defaultSchedule;
+
+            if (overridenSchedule != null && !Calendar.DayOverridesExclusions.Contains(defaultSchedule))
+            {
+                schedule = overridenSchedule;
+            }
+
             return schedule;
         }
 

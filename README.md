@@ -9,11 +9,15 @@ Stable | Stable & Building | Broken | Broken & Building
 
 
 
+
+
 ## Build status
 
 AppVeyor status:  [![AppVeyor status](https://ci.appveyor.com/api/projects/status/9xebpi3ve7ujf2vb?svg=true)](https://ci.appveyor.com/project/jorgeyanesdiez/HueUpdater)
 
-Sonarcloud status: [![Sonarcloud status](https://sonarcloud.io/api/project_badges/measure?project=jorgeyanesdiez_HueUpdater&metric=alert_status)](https://sonarcloud.io/dashboard?id=jorgeyanesdiez_HueUpdater)
+Sonarcloud status:  [![Sonarcloud status](https://sonarcloud.io/api/project_badges/measure?project=jorgeyanesdiez_HueUpdater&metric=alert_status)](https://sonarcloud.io/dashboard?id=jorgeyanesdiez_HueUpdater)
+
+
 
 
 
@@ -31,6 +35,8 @@ Depending on a defined schedule and a calendar, it then turns the lamp on/off, a
 
 
 
+
+
 ## Usage prerequisites
 
 * Hue hub, lights, CI systems and all networking must have been already set up and in working order.
@@ -43,7 +49,10 @@ Depending on a defined schedule and a calendar, it then turns the lamp on/off, a
 
 * The user that runs the application must have write permissions on the location where the last status file is written.
 
-  
+
+
+
+
 
 
 ## Deployment
@@ -57,61 +66,63 @@ Open the *appsettings.json* file with a plain text editor and tweak the values a
 
   Full or relative path to a file to be used to keep track of the last build status. At least a file name must be specified. The default value may be used, but it assumes the user that runs the application has write permissions on the folder that contains the application.
 
-  
+
 
 * **Hue** -> ***Endpoint***
 
-  API endpoint of the light to control. 
+  API endpoint of the light to control.
 
   Example: `http://192.168.0.1/api/0123456789012345678901234567890123456789/lights/1/state`
 
-  
+
 
 * **Jenkins** -> ***BaseEndpoint***
 
-  Base of the Jenkins instance. 
+  Base of the Jenkins instance.
 
   Example: `http://jenkins-server.mycompany.com`
 
-  
+
 
 * **Jenkins** -> ***JobNameRegexFilter***
 
-  Optional regex to filter jobs by name. May be left empty. 
+  Optional regex to filter jobs by name. May be left empty.
 
   Example: `Project abc`
 
-  
+
 
 * **Jenkins** -> ***User***
 
   The user name to authenticate requests to Jenkins with.
 
-  
+
 
 * **Jenkins** -> ***Password***
 
   The password to authenticate requests to Jenkins with.
 
-  
+
 
 * **TeamCity** -> ***BaseEndpoint***
 
-  Base of the TeamCity instance. 
+  Base of the TeamCity instance.
 
   Example: `http://teamcity-server.mycompany.com`
 
-  
+
 
 * **TeamCity** -> ***User***
 
   The user name to authenticate requests to TeamCity with.
 
-  
+
 
 * **TeamCity** -> ***Password***
 
   The password to authenticate requests to TeamCity with.
+
+
 
 
 
@@ -126,13 +137,13 @@ The calendar and schedule should be modified to your needs too.
 
   This defines a schedule called *2-Regular* that turns the light on at 8:45 in the morning and turns it off at 19:15 in the evening.
 
-  
+
 
 * The section **Operation** -> **Calendar** -> **Defaults** defines date intervals.
 
   To assign a schedule to a calendar, the keys in this section must match the keys in the **Operation** -> **Schedule** section.
 
-  Example: 
+  Example:
 
   ```json
   "2-Regular": [
@@ -141,34 +152,46 @@ The calendar and schedule should be modified to your needs too.
   ]
   ```
 
-  This  defines a calendar that applies the *2-Regular* schedule during the first day of year 2020, and for the first 20 days in February of year 2020.
+  This defines a calendar that applies the *2-Regular* schedule during the first day of year 2020, and for the first 20 days in February of year 2020.
 
-  
 
-* The section **Operation** -> **Calendar** -> **DayOverrides** can be used to override a schedule based on the day of the week.
+
+* The section **Operation** -> **Calendar** -> **DayOverrides** defines schedule overrides based on the day of the week.
 
   Example:
   ```json
   "1-Off": [ "Saturday", "Sunday" ]
   ```
 
-  This defines an override that causes the schedule to be *1-Off*  on Saturdays and Sundays. Following the previous examples, this would mean that on days February 1, 2, 8, 9, 15, and 16 of year 2020, the applicable schedule will be *1-Off* and not *2-Regular*.
+  This defines an override that causes the schedule to be *1-Off* on Saturdays and Sundays. Following the previous examples, this would mean that on days February 1, 2, 8, 9, 15, and 16 of year 2020, the applicable schedule will be *1-Off* and not *2-Regular*.
 
-  
+
 
 * The values in the **Operation** -> **Calendar** -> **DayOverrides** section must be valid days in English.
 
-  
+
+
+* The section **Operation** -> **Calendar** -> **DayOverridesExclusions** defines schedules that should not be overridden.
+
+  Example:
+
+  ```json
+  "DayOverridesExclusions": [ "1-Off" ]
+  ```
+
+  This declares that, if the default schedule is 1-Off, then it should not be overridden.
 
 * The names of the keys in all sections must be chosen carefully, since matches will be resolved in alphabetical order.
 
-  
+
 
 * The *appsettings.json* file must remain valid at all times. Use valid JSON only.
 
 
 
-Once done, schedule a task to run this application frequently. 
+
+
+Once done, schedule a task to run this application frequently.
 
 I use Windows' Task Scheduler to run this every minute or so.
 
@@ -177,9 +200,13 @@ That's all there is to it.
 
 
 
+
+
 ## License
 
 This project is licensed under the MIT License - see the [LICENSE.md](LICENSE.md) file for details
+
+
 
 
 
