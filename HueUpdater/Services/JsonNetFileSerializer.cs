@@ -36,11 +36,9 @@ namespace HueUpdater.Services
             TOutput result;
             try
             {
-                using (var reader = new StreamReader(FilePath))
-                {
-                    var contents = reader.ReadToEnd();
-                    result = JsonConvert.DeserializeObject<TOutput>(contents);
-                }
+                using var reader = new StreamReader(FilePath);
+                var contents = reader.ReadToEnd();
+                result = JsonConvert.DeserializeObject<TOutput>(contents);
             }
             catch(Exception e) when (e is FileNotFoundException || e is JsonReaderException)
             {
@@ -54,10 +52,8 @@ namespace HueUpdater.Services
         public void Serialize<TInput>(TInput input) where TInput : new()
         {
             var contents = JsonConvert.SerializeObject(input);
-            using (var writer = new StreamWriter(FilePath))
-            {
-                writer.Write(contents);
-            }
+            using var writer = new StreamWriter(FilePath);
+            writer.Write(contents);
         }
 
     }

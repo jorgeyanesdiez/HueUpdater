@@ -53,7 +53,7 @@ namespace HueUpdater
             var schedule = scheduleResolver.Resolve(dateTime.Date) ?? config.Operation.Schedule.Keys.First();
             var isScheduleApplicable = applicabilityResolver.Resolve(new ScheduleQuery { ScheduleName = schedule, Time = dateTime.TimeOfDay });
             Console.WriteLine($"Schedule: {schedule} | {config.Operation.Schedule[schedule].Start} - {config.Operation.Schedule[schedule].Finish}");
-            Console.WriteLine($"Time: {dateTime.ToString("HH:mm")} | Power enabled? {isScheduleApplicable}");
+            Console.WriteLine($"Time: {dateTime:HH:mm} | Power enabled? {isScheduleApplicable}");
 
             if (isScheduleApplicable)
             {
