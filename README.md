@@ -62,7 +62,7 @@ Open the *appsettings.json* file with a plain text editor and tweak the values a
 
 
 
-* ***LastStatusFilePath***
+* **Persistence** -> ***LastStatusFilePath***
 
   Full or relative path to a file to be used to keep track of the last build status. At least a file name must be specified. The default value may be used, but it assumes the user that runs the application has write permissions on the folder that contains the application.
 
@@ -126,9 +126,9 @@ Open the *appsettings.json* file with a plain text editor and tweak the values a
 
 
 
-The calendar and schedule should be modified to your needs too.
+The calendar and schedules should be modified to your needs too.
 
-* The section **Operation** -> **Schedule** defines time intervals of each day during which the light is on.
+* The section **Operation** -> **Schedules** defines time intervals of each day during which the light is on.
 
   Example:
   ```json
@@ -141,7 +141,7 @@ The calendar and schedule should be modified to your needs too.
 
 * The section **Operation** -> **Calendar** -> **Defaults** defines date intervals.
 
-  To assign a schedule to a calendar, the keys in this section must match the keys in the **Operation** -> **Schedule** section.
+  To assign a schedule to a calendar, the keys in this section must match the keys in the **Operation** -> **Schedules** section.
 
   Example:
 
@@ -214,5 +214,4 @@ This project is licensed under the MIT License - see the [LICENSE.md](LICENSE.md
 ## Future plans
 
 * Make the providers pluggable.
-* Add more providers.
 * Allow more than one time interval per schedule.

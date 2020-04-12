@@ -7,83 +7,45 @@ namespace HueUpdater.Services
 {
 
     /// <summary>
-    /// Resolves a schedule based on a calendar and a date.
+    /// Resolves a schedule based on a date.
     /// </summary>
     public class ScheduleResolver
-        : IResolver<DateTime, string>
+        : IResolver<DateTime, (string Name, TimeRangeSettings Times)>
     {
 
         /// <summary>
-        /// The calendar required to resolve the schedule.
+        /// The service required to get the name of a schedule.
         /// </summary>
-        private CalendarSettings Calendar { get; }
+        private IResolver<DateTime, string> ScheduleNameResolver { get; }
+
+
+        /// <summary>
+        /// The available schedules.
+        /// </summary>
+        private ScheduleSettings Schedules { get; }
 
 
         /// <summary>
         /// Main constructor.
         /// </summary>
-        /// <param name="calendar">The value for the <see cref="Calendar"/> property.</param>
-        public ScheduleResolver(CalendarSettings calendar)
+        /// <param name="scheduleNameResolver">The value for the <see cref="ScheduleNameResolver"/> property.</param>
+        /// <param name="schedules">The value for the <see cref="Schedules"/> property.</param>
+        public ScheduleResolver(
+            IResolver<DateTime, string> scheduleNameResolver,
+            ScheduleSettings schedules)
         {
-            Calendar = calendar ?? throw new ArgumentNullException(nameof(calendar));
+            ScheduleNameResolver = scheduleNameResolver ?? throw new ArgumentNullException(nameof(scheduleNameResolver));
+            Schedules = schedules ?? throw new ArgumentNullException(nameof(schedules));
+            if (!schedules.Keys.Any()) { throw new ArgumentOutOfRangeException(nameof(schedules)); }
         }
 
 
         /// <inheritdoc/>
-        public string Resolve(DateTime date)
+        public (string Name, TimeRangeSettings Times) Resolve(DateTime input)
         {
-            var overridenSchedule = ResolveDayOverridenSchedule(date);
-            var defaultSchedule = ResolveDefaultSchedule(date);
-            var schedule = defaultSchedule;
-
-            if (overridenSchedule != null && !Calendar.DayOverridesExclusions.Contains(defaultSchedule))
-            {
-                schedule = overridenSchedule;
-            }
-
-            return schedule;
-        }
-
-
-        /// <summary>
-        /// Resolves a schedule according to the day override settings.
-        /// </summary>
-        /// <param name="date">The date to find a schedule for.</param>
-        /// <returns>The name of the schedule.</returns>
-        public string ResolveDayOverridenSchedule(DateTime date)
-        {
-            var schedule = Calendar?.DayOverrides.OrderBy(grp => grp.Key).FirstOrDefault(dayNames =>
-                dayNames.Value.Any(dayName =>
-                {
-                    var isDayParsed = Enum.TryParse<DayOfWeek>(dayName, out var dayOfWeek);
-                    var result = isDayParsed && date.Date.DayOfWeek == dayOfWeek;
-                    return result;
-                })
-            ).Key;
-
-            return schedule;
-        }
-
-
-        /// <summary>
-        /// Resolves a schedule according to the default calendar settings.
-        /// </summary>
-        /// <param name="date">The date to find a schedule for.</param>
-        /// <returns>The name of the schedule.</returns>
-        public string ResolveDefaultSchedule(DateTime date)
-        {
-            var schedule = Calendar?.Defaults.OrderBy(grp => grp.Key).FirstOrDefault(dateRanges =>
-                dateRanges.Value.Any(dateRange =>
-                {
-                    var isStartDateParsed = DateTime.TryParse(dateRange.Start, out var startDate);
-                    var isFinishDateParsed = DateTime.TryParse(dateRange.Finish, out var finishDate);
-                    var result = isStartDateParsed && isFinishDateParsed &&
-                        date.Date >= startDate && date.Date <= finishDate;
-                    return result;
-                })
-            ).Key;
-
-            return schedule;
+            var scheduleName = ScheduleNameResolver.Resolve(input.Date) ?? Schedules.Keys.First();
+            var schedule = Schedules[scheduleName];
+            return (scheduleName, schedule);
         }
 
     }

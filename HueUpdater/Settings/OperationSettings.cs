@@ -1,6 +1,4 @@
-﻿using System.Collections.Generic;
-
-namespace HueUpdater.Settings
+﻿namespace HueUpdater.Settings
 {
 
     /// <summary>
@@ -8,7 +6,7 @@ namespace HueUpdater.Settings
     /// </summary>
     public class OperationSettings
     {
-        public IDictionary<string, TimeRangeSettings> Schedule { get; set; } = new Dictionary<string, TimeRangeSettings>();
+        public ScheduleSettings Schedules { get; set; } = new ScheduleSettings();
         public CalendarSettings Calendar { get; set; } = new CalendarSettings();
     }
 

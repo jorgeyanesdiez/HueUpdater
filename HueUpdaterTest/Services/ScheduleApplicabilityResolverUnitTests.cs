@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 using FluentAssertions;
 using HueUpdater.Models;
 using HueUpdater.Settings;
@@ -12,12 +11,12 @@ namespace HueUpdater.Services
     public class ScheduleApplicabilityResolverUnitTests
     {
 
-        private IDictionary<string, TimeRangeSettings> Schedule { get; set; }
+        private ScheduleSettings Schedules { get; set; }
 
 
         public ScheduleApplicabilityResolverUnitTests()
         {
-            Schedule = CreateSchedule();
+            Schedules = CreateSchedules();
         }
 
 
@@ -35,11 +34,11 @@ namespace HueUpdater.Services
         [InlineData("", null)]
         [InlineData("", "")]
         [InlineData("anything", "00:00")]
-        public void Resolve_EmptySchedule_IsExpected(string schedule, string time)
+        public void Resolve_EmptySchedules_IsExpected(string scheduleName, string time)
         {
-            var sut = new ScheduleApplicabilityResolver(new Dictionary<string, TimeRangeSettings>());
+            var sut = new ScheduleApplicabilityResolver(new ScheduleSettings());
             TimeSpan.TryParse(time, out var timeSpan);
-            var result = sut.Resolve(new ScheduleQuery { ScheduleName = schedule, Time = timeSpan });
+            var result = sut.Resolve(new ScheduleQuery { ScheduleName = scheduleName, Time = timeSpan });
             result.Should().BeFalse();
         }
 
@@ -51,9 +50,9 @@ namespace HueUpdater.Services
         [InlineData("Invalid", "00:00")]
         [InlineData("Invalid", "00:01")]
         [InlineData("Valid", "00:01")]
-        public void Resolve_ValidSchedule_OutOfRange_IsExpected(string scheduleName, string time)
+        public void Resolve_ValidSchedules_OutOfRange_IsExpected(string scheduleName, string time)
         {
-            var sut = new ScheduleApplicabilityResolver(Schedule);
+            var sut = new ScheduleApplicabilityResolver(Schedules);
             var result = sut.Resolve(new ScheduleQuery { ScheduleName = scheduleName, Time = TimeSpan.Parse(time) });
             result.Should().BeFalse();
         }
@@ -61,23 +60,23 @@ namespace HueUpdater.Services
 
         [Theory]
         [InlineData("Valid", "00:00")]
-        public void Resolve_ValidSchedule_InRange_IsExpected(string scheduleName, string time)
+        public void Resolve_ValidSchedules_InRange_IsExpected(string scheduleName, string time)
         {
-            var sut = new ScheduleApplicabilityResolver(Schedule);
+            var sut = new ScheduleApplicabilityResolver(Schedules);
             var result = sut.Resolve(new ScheduleQuery { ScheduleName = scheduleName, Time = TimeSpan.Parse(time) });
             result.Should().BeTrue();
         }
 
 
-        private IDictionary<string, TimeRangeSettings> CreateSchedule()
+        private ScheduleSettings CreateSchedules()
         {
-            var schedule = new Dictionary<string, TimeRangeSettings>()
+            var schedules = new ScheduleSettings
             {
                 { "Empty", new TimeRangeSettings { Start = "00:00", Finish = "00:00" } },
                 { "Invalid", new TimeRangeSettings { Start = "00:01", Finish = "00:00" } },
                 { "Valid", new TimeRangeSettings { Start = "00:00", Finish = "00:01" } }
             };
-            return schedule;
+            return schedules;
         }
 
     }

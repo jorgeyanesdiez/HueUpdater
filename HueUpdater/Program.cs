@@ -1,126 +1,113 @@
 ﻿using System;
-using System.Linq;
 using System.Threading.Tasks;
 using Flurl.Http;
 using Flurl.Http.Configuration;
-using HueUpdater.Factories;
+using HueUpdater.Abstractions;
+using HueUpdater.Dtos;
 using HueUpdater.Models;
 using HueUpdater.Services;
 using HueUpdater.Settings;
 using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Serialization;
+using static Microsoft.Extensions.DependencyInjection.ActivatorUtilities;
 
 namespace HueUpdater
 {
 
     /// <summary>
-    /// Contains the entry point from the command line.
+    /// The program's entry point.
     /// </summary>
     class Program
     {
 
         /// <summary>
-        /// The entry point from the command line.
+        /// Entry point from the command line.
         /// </summary>
-        /// <returns>Task for async compatibility.</returns>
-        async static Task Main()
+        /// <param name="args">The command line arguments.</param>
+        static void Main(string[] args)
         {
-            await new Program().RunAsync();
+            CreateHostBuilder(args).Build().Run();
         }
 
 
         /// <summary>
-        /// Runs the application's logic.
+        /// Creates and configures a host builder for later use.
         /// </summary>
-        /// <returns>Task for async compatibility.</returns>
-        public async Task RunAsync()
+        /// <param name="args">The command line arguments.</param>
+        /// <returns>The requested host builder.</returns>
+        static IHostBuilder CreateHostBuilder(string[] args)
         {
-            var config = GetAppSettings();
-            var scheduleResolver = new ScheduleResolver(config.Operation.Calendar);
-            var applicabilityResolver = new ScheduleApplicabilityResolver(config.Operation.Schedule);
-            var jenkinsAggregator = new JenkinsStatusAggregator(config.Jenkins.BaseEndpoint, config.Jenkins.JobNameRegexFilter);
-            var teamCityAggregator = new TeamCityStatusAggregator(config.TeamCity.BaseEndpoint);
-            var activityStatusResolver = new CIActivityStatusResolver();
-            var buildStatusResolver = new CIBuildStatusResolver();
-            var fileSerializer = new JsonNetFileSerializer(config.LastStatusFilePath);
-            var hueColorResolver = new HueColorResolver();
-            var hueAlertResolver = new HueAlertResolver();
-            var hueInvoker = new HueInvoker(config.Hue.Endpoint);
-            ConfigureServices(config);
-
-            var dateTime = DateTime.Now;
-            var schedule = scheduleResolver.Resolve(dateTime.Date) ?? config.Operation.Schedule.Keys.First();
-            var isScheduleApplicable = applicabilityResolver.Resolve(new ScheduleQuery { ScheduleName = schedule, Time = dateTime.TimeOfDay });
-            Console.WriteLine($"Schedule: {schedule} | {config.Operation.Schedule[schedule].Start} - {config.Operation.Schedule[schedule].Finish}");
-            Console.WriteLine($"Time: {dateTime:HH:mm} | Power enabled? {isScheduleApplicable}");
-
-            if (isScheduleApplicable)
-            {
-                var jenkinsActivityStatus = jenkinsAggregator.GetActivityStatus();
-                var jenkinsBuildStatus = jenkinsAggregator.GetBuildStatus();
-                var teamCityActivityStatus = teamCityAggregator.GetActivityStatus();
-                var teamCityBuildStatus = teamCityAggregator.GetBuildStatus();
-                var currentStatus = new CIStatus
+            return Host.CreateDefaultBuilder(args)
+                .ConfigureHostConfiguration(configHost =>
                 {
-                    ActivityStatus = activityStatusResolver.Resolve(await jenkinsActivityStatus, await teamCityActivityStatus),
-                    BuildStatus = buildStatusResolver.Resolve(await jenkinsBuildStatus, await teamCityBuildStatus)
-                };
-                var previousStatus = fileSerializer.Deserialize<CIStatus>();
-                fileSerializer.Serialize(currentStatus);
-                var hueColor = hueColorResolver.Resolve(currentStatus);
-                var hueAlert = hueAlertResolver.Resolve(new CIStatusChangeQuery { Current = currentStatus, Previous = previousStatus });
+                    configHost.SetBasePath(Environment.CurrentDirectory);
+                })
+                .ConfigureAppConfiguration((hostContext, configApp) =>
+                {
+                    configApp.AddJsonFile("appsettings.json");
+                    configApp.AddUserSecrets<Program>();
+                })
+                .ConfigureServices((hostContext, services) =>
+                {
+                    var appSettings = hostContext.Configuration.Get<AppSettings>();
 
-                Console.WriteLine($"Jenkins status: { await jenkinsActivityStatus } - { await jenkinsBuildStatus }");
-                Console.WriteLine($"TeamCity status: { await teamCityActivityStatus } - { await teamCityBuildStatus }");
-                Console.WriteLine($"Global status: { currentStatus.ActivityStatus } - { currentStatus.BuildStatus }");
+                    // Application services DI
+                    services.AddSingleton<IResolver<CIActivityStatus[], CIActivityStatus>, CIActivityStatusResolver>();
+                    services.AddSingleton<IResolver<CIBuildStatus[], CIBuildStatus>, CIBuildStatusResolver>();
+                    services.AddSingleton<IResolver<CIStatusChangeQuery, HueAlert>, HueAlertResolver>();
+                    services.AddSingleton<IResolver<CIStatus, HueColor>, HueColorResolver>();
+                    services.AddSingleton<IHueInvoker>(sp => CreateInstance<HueInvoker>(sp, appSettings.Hue.Endpoint));
+                    services.AddSingleton<Abstractions.ISerializer>(sp => CreateInstance<JsonNetFileSerializer>(sp, appSettings.Persistence.LastStatusFilePath));
+                    services.AddSingleton<IResolver<ScheduleQuery, bool>>(sp => CreateInstance<ScheduleApplicabilityResolver>(sp, appSettings.Operation.Schedules));
+                    services.AddSingleton<IResolver<DateTime, string>>(sp => CreateInstance<ScheduleNameResolver>(sp, appSettings.Operation.Calendar));
+                    services.AddSingleton<IResolver<DateTime, (string Name, TimeRangeSettings Times)>>(sp => CreateInstance<ScheduleResolver>(sp, appSettings.Operation.Schedules));
 
-                await hueInvoker.PutAsync(hueColor);
-                await hueInvoker.PutAsync(hueAlert);
-            }
-            else
-            {
-                await hueInvoker.PutAsync(HuePowerFactory.CreateOff());
-            }
+                    //TODO: Use an assembly scanner to make these pluggable?
+                    services.AddSingleton(sp => CreateInstance<JenkinsStatusAggregator>(sp, appSettings.Jenkins.BaseEndpoint, appSettings.Jenkins.JobNameRegexFilter));
+                    services.AddSingleton(sp => CreateInstance<TeamCityStatusAggregator>(sp, appSettings.TeamCity.BaseEndpoint));
+                    services.AddSingleton<IActivityStatusAggregator<Task<CIActivityStatus>>>(sp => sp.GetRequiredService<JenkinsStatusAggregator>());
+                    services.AddSingleton<IBuildStatusAggregator<Task<CIBuildStatus>>>(sp => sp.GetRequiredService<JenkinsStatusAggregator>());
+                    services.AddSingleton<IActivityStatusAggregator<Task<CIActivityStatus>>>(sp => sp.GetRequiredService<TeamCityStatusAggregator>());
+                    services.AddSingleton<IBuildStatusAggregator<Task<CIBuildStatus>>>(sp => sp.GetRequiredService<TeamCityStatusAggregator>());
+
+                    // Hosted service DI
+                    services.AddHostedService<HueUpdaterService>();
+
+                    // Application services configuration
+                    ConfigureAppServices(appSettings.Jenkins, appSettings.TeamCity);
+                })
+                .ConfigureLogging((hostContext, configLogging) =>
+                {
+                    configLogging.AddConsole();
+                })
+                .UseConsoleLifetime();
         }
 
 
         /// <summary>
-        /// Configures the application's services.
+        /// Configures the application services that require configuration.
         /// </summary>
-        /// <param name="config">The settings required for configuration.</param>
-        private void ConfigureServices(AppSettings config)
+        /// <param name="jenkinsSettings">The settings required to configure Jenkins requests.</param>
+        /// <param name="teamCitySettings">The settings required to configure TeamCity requests.</param>
+        static void ConfigureAppServices(JenkinsSettings jenkinsSettings, TeamCitySettings teamCitySettings)
         {
             var jsonSettings = new JsonSerializerSettings { ContractResolver = new CamelCasePropertyNamesContractResolver() };
             FlurlHttp.Configure(s => s.JsonSerializer = new NewtonsoftJsonSerializer(jsonSettings));
 
-            FlurlHttp.ConfigureClient(config.Jenkins.BaseEndpoint, cl =>
-                cl.WithBasicAuth(config.Jenkins.User, config.Jenkins.Password)
+            FlurlHttp.ConfigureClient(jenkinsSettings.BaseEndpoint, cl =>
+                cl.WithBasicAuth(jenkinsSettings.User, jenkinsSettings.Password)
             );
-            config.Jenkins.Password = null;
+            jenkinsSettings.Password = null;
 
-            FlurlHttp.ConfigureClient(config.TeamCity.BaseEndpoint, cl =>
+            FlurlHttp.ConfigureClient(teamCitySettings.BaseEndpoint, cl =>
                 cl.WithHeader("Accept", "application/json")
-                .WithBasicAuth(config.TeamCity.User, config.TeamCity.Password)
+                  .WithBasicAuth(teamCitySettings.User, teamCitySettings.Password)
             );
-            config.TeamCity.Password = null;
-        }
-
-
-        /// <summary>
-        /// Obtains the application configuration from configured sources.
-        /// </summary>
-        /// <returns>The requested configuration.</returns>
-        private AppSettings GetAppSettings()
-        {
-            var configRoot = new ConfigurationBuilder()
-                .SetBasePath(Environment.CurrentDirectory)
-                .AddJsonFile("appsettings.json")
-                .AddUserSecrets<Program>()
-                .Build();
-
-            var config = configRoot.Get<AppSettings>();
-            return config;
+            teamCitySettings.Password = null;
         }
 
     }

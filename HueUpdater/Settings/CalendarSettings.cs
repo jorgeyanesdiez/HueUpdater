@@ -1,6 +1,4 @@
-﻿using System.Collections.Generic;
-
-namespace HueUpdater.Settings
+﻿namespace HueUpdater.Settings
 {
 
     /// <summary>
@@ -8,9 +6,9 @@ namespace HueUpdater.Settings
     /// </summary>
     public class CalendarSettings
     {
-        public IDictionary<string, DateRangeSettings[]> Defaults { get; set; } = new Dictionary<string, DateRangeSettings[]>();
-        public IDictionary<string, string[]> DayOverrides { get; set; } = new Dictionary<string, string[]>();
-        public IList<string> DayOverridesExclusions { get; set; } = new List<string>();
+        public CalendarDefaultSettings Defaults { get; set; } = new CalendarDefaultSettings();
+        public CalendarDayOverrideSettings DayOverrides { get; set; } = new CalendarDayOverrideSettings();
+        public CalendarDayOverrideExclusionSettings DayOverridesExclusions { get; set; } = new CalendarDayOverrideExclusionSettings();
     }
 
 }
