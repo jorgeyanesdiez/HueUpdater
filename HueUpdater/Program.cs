@@ -28,9 +28,9 @@ namespace HueUpdater
         /// Entry point from the command line.
         /// </summary>
         /// <param name="args">The command line arguments.</param>
-        public static void Main(string[] args)
+        public static async Task Main(string[] args)
         {
-            CreateHostBuilder(args).Build().Run();
+            await CreateHostBuilder(args).Build().RunAsync();
         }
 
 
