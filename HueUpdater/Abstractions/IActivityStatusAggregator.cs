@@ -5,7 +5,7 @@
     /// Contract for services that derive an activity status.
     /// </summary>
     /// <typeparam name="TActivityStatus">The type of the activity status.</typeparam>
-    public interface IActivityStatusAggregator<TActivityStatus>
+    public interface IActivityStatusAggregator<out TActivityStatus>
     {
 
         /// <summary>

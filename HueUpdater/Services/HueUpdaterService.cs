@@ -157,7 +157,7 @@ namespace HueUpdater.Services
         /// Orchestrates all required services to update the Hue lamp.
         /// </summary>
         /// <returns>The task required for async compatibility.</returns>
-        private async Task UpdateHueEndpointAsync()
+        public async Task UpdateHueEndpointAsync()
         {
             var dateTime = DateTime.Now;
             var (scheduleName, scheduleTime) = ScheduleResolver.Resolve(dateTime.Date);

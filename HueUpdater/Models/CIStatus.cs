@@ -6,7 +6,7 @@ namespace HueUpdater.Models
     /// <summary>
     /// Models the status of a CI system.
     /// </summary>
-    public class CIStatus
+    public sealed class CIStatus
         : IEquatable<CIStatus>
     {
 

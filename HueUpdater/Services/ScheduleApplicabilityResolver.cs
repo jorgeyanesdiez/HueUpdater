@@ -33,6 +33,8 @@ namespace HueUpdater.Services
         /// <inheritdoc/>
         public bool Resolve(ScheduleQuery query)
         {
+            if (query == null) { throw new ArgumentNullException(nameof(query)); }
+
             var timeSettings = Schedules.FirstOrDefault(s => s.Key == query.ScheduleName).Value;
             var isStartTimeParsed = TimeSpan.TryParse(timeSettings?.Start, out var startTime);
             var isFinishTimeParsed = TimeSpan.TryParse(timeSettings?.Finish, out var finishTime);

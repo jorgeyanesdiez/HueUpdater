@@ -21,14 +21,14 @@ namespace HueUpdater
     /// <summary>
     /// The program's entry point.
     /// </summary>
-    class Program
+    public class Program
     {
 
         /// <summary>
         /// Entry point from the command line.
         /// </summary>
         /// <param name="args">The command line arguments.</param>
-        static void Main(string[] args)
+        public static void Main(string[] args)
         {
             CreateHostBuilder(args).Build().Run();
         }
@@ -39,7 +39,7 @@ namespace HueUpdater
         /// </summary>
         /// <param name="args">The command line arguments.</param>
         /// <returns>The requested host builder.</returns>
-        static IHostBuilder CreateHostBuilder(string[] args)
+        private static IHostBuilder CreateHostBuilder(string[] args)
         {
             return Host.CreateDefaultBuilder(args)
                 .ConfigureHostConfiguration(configHost =>
@@ -93,7 +93,7 @@ namespace HueUpdater
         /// </summary>
         /// <param name="jenkinsSettings">The settings required to configure Jenkins requests.</param>
         /// <param name="teamCitySettings">The settings required to configure TeamCity requests.</param>
-        static void ConfigureAppServices(JenkinsSettings jenkinsSettings, TeamCitySettings teamCitySettings)
+        private static void ConfigureAppServices(JenkinsSettings jenkinsSettings, TeamCitySettings teamCitySettings)
         {
             var jsonSettings = new JsonSerializerSettings { ContractResolver = new CamelCasePropertyNamesContractResolver() };
             FlurlHttp.Configure(s => s.JsonSerializer = new NewtonsoftJsonSerializer(jsonSettings));

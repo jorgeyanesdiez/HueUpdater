@@ -36,7 +36,7 @@ namespace HueUpdater.Services
             var defaultName = ResolveDefault(date);
             var scheduleName = defaultName;
 
-            if (overridenName != null && !Calendar.DayOverridesExclusions.Contains(defaultName))
+            if (overridenName != null && !(Calendar.DayOverridesExclusions?.Contains(defaultName) ?? false))
             {
                 scheduleName = overridenName;
             }
@@ -52,7 +52,7 @@ namespace HueUpdater.Services
         /// <returns>The name of the schedule.</returns>
         public string ResolveOverriden(DateTime date)
         {
-            var scheduleName = Calendar?.DayOverrides.OrderBy(grp => grp.Key).FirstOrDefault(dayNames =>
+            var scheduleName = Calendar.DayOverrides?.OrderBy(grp => grp.Key).FirstOrDefault(dayNames =>
                 dayNames.Value.Any(dayName =>
                 {
                     var isDayParsed = Enum.TryParse<DayOfWeek>(dayName, out var dayOfWeek);
@@ -72,7 +72,7 @@ namespace HueUpdater.Services
         /// <returns>The name of the schedule.</returns>
         public string ResolveDefault(DateTime date)
         {
-            var scheduleName = Calendar?.Defaults.OrderBy(grp => grp.Key).FirstOrDefault(dateRanges =>
+            var scheduleName = Calendar.Defaults?.OrderBy(grp => grp.Key).FirstOrDefault(dateRanges =>
                 dateRanges.Value.Any(dateRange =>
                 {
                     var isStartDateParsed = DateTime.TryParse(dateRange.Start, out var startDate);

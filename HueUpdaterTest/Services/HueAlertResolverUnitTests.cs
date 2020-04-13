@@ -19,6 +19,7 @@ namespace HueUpdater.Services
 
         public static IEnumerable<object[]> Resolve_Same_IsExpected_Data => new object[][]
         {
+            // null and null are assumed different, so not part of this set.
             new object[] { idleStable },
             new object[] { idleBroken },
             new object[] { buildingStable },
@@ -38,12 +39,27 @@ namespace HueUpdater.Services
 
         public static IEnumerable<object[]> Resolve_Different_IsExpected_Data => new object[][]
         {
+            new object[] { null, null },
+            new object[] { null, idleStable },
+            new object[] { null, idleBroken },
+            new object[] { null, buildingStable },
+            new object[] { null, buildingBroken },
+            new object[] { idleStable, null },
             new object[] { idleStable, idleBroken },
             new object[] { idleStable, buildingStable },
             new object[] { idleStable, buildingBroken },
+            new object[] { idleBroken, null },
+            new object[] { idleBroken, idleStable },
             new object[] { idleBroken, buildingStable },
             new object[] { idleBroken, buildingBroken },
-            new object[] { buildingStable, buildingBroken }
+            new object[] { buildingStable, null },
+            new object[] { buildingStable, idleStable },
+            new object[] { buildingStable, idleBroken },
+            new object[] { buildingStable, buildingBroken },
+            new object[] { buildingBroken, null },
+            new object[] { buildingBroken, idleStable },
+            new object[] { buildingBroken, idleBroken },
+            new object[] { buildingBroken, buildingStable }
         };
 
 

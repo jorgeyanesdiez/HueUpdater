@@ -10,12 +10,14 @@ namespace HueUpdater.Services
     public class ScheduleNameResolverUnitTests
     {
 
+        private CalendarSettings MalformedCalendar { get; }
         private CalendarSettings InvalidCalendar { get; }
         private CalendarSettings Calendar { get; }
 
 
         public ScheduleNameResolverUnitTests()
         {
+            MalformedCalendar = CreateMalformedCalendar();
             InvalidCalendar = CreateInvalidCalendar();
             Calendar = CreateCalendar();
         }
@@ -26,6 +28,33 @@ namespace HueUpdater.Services
         {
             Action action = () => new ScheduleNameResolver(null);
             action.Should().ThrowExactly<ArgumentNullException>();
+        }
+
+
+        [Fact]
+        public void Resolve_MalformedCalendar_IsExpected()
+        {
+            var sut = new ScheduleNameResolver(MalformedCalendar);
+            var result = sut.Resolve(DateTime.Today);
+            result.Should().BeNull();
+        }
+
+
+        [Fact]
+        public void ResolveOverriden_MalformedCalendar_IsExpected()
+        {
+            var sut = new ScheduleNameResolver(MalformedCalendar);
+            var result = sut.ResolveOverriden(DateTime.Today);
+            result.Should().BeNull();
+        }
+
+
+        [Fact]
+        public void ResolveDefault_MalformedCalendar_IsExpected()
+        {
+            var sut = new ScheduleNameResolver(MalformedCalendar);
+            var result = sut.ResolveDefault(DateTime.Today);
+            result.Should().BeNull();
         }
 
 
@@ -116,6 +145,19 @@ namespace HueUpdater.Services
         }
 
 
+        private CalendarSettings CreateMalformedCalendar()
+        {
+            var malformedCalendar = new CalendarSettings()
+            {
+                Defaults = null,
+                DayOverrides = null,
+                DayOverridesExclusions = null
+            };
+
+            return malformedCalendar;
+        }
+
+
         private CalendarSettings CreateInvalidCalendar()
         {
             var invalidCalendar = new CalendarSettings()
@@ -127,7 +169,8 @@ namespace HueUpdater.Services
                 DayOverrides = new CalendarDayOverrideSettings
                 {
                     { "", new[] { "" } }
-                }
+                },
+                DayOverridesExclusions = new CalendarDayOverrideExclusionSettings { null }
             };
 
             return invalidCalendar;
@@ -148,7 +191,7 @@ namespace HueUpdater.Services
                 {
                     { "Weekends", new[] { "Saturday", "Sunday" } }
                 },
-                DayOverridesExclusions = new CalendarDayOverrideExclusionSettings() { "AllFebruary" }
+                DayOverridesExclusions = new CalendarDayOverrideExclusionSettings { "AllFebruary" }
             };
             return calendar;
         }

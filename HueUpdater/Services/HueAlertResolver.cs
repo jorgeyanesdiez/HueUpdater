@@ -16,7 +16,7 @@ namespace HueUpdater.Services
         /// <inheritdoc/>
         public HueAlert Resolve(CIStatusChangeQuery input)
         {
-            var isEqual = input?.Current.Equals(input?.Previous) ?? false;
+            var isEqual = input?.Current?.Equals(input?.Previous) ?? false;
             var alert = isEqual
                 ? HueAlertFactory.CreateNone()
                 : HueAlertFactory.CreateBlink();

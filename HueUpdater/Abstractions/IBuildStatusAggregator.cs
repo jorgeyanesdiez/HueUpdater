@@ -5,7 +5,7 @@
     /// Contract for services that derive a build status.
     /// </summary>
     /// <typeparam name="TBuildStatus">The type of the build status.</typeparam>
-    public interface IBuildStatusAggregator<TBuildStatus>
+    public interface IBuildStatusAggregator<out TBuildStatus>
     {
 
         /// <summary>

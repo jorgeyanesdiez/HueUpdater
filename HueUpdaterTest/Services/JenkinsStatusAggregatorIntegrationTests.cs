@@ -19,15 +19,13 @@ namespace HueUpdater.Services
         [InlineData("BlueYellowGrey")]
         public async Task GetActivityStatus_IdleJobs_IsExpected(string partialName)
         {
-            string response = File.ReadAllText($"Jenkins.{partialName}.json");
-            using (var httpTest = new HttpTest())
-            {
-                httpTest.RespondWith(response, 200);
-                var sut = new JenkinsStatusAggregator(url);
-                var result = await sut.GetActivityStatus();
-                result.Should().Be(CIActivityStatus.Idle);
-                httpTest.ShouldHaveCalled(url);
-            }
+            var response = File.ReadAllText($"Jenkins.{partialName}.json");
+            using var httpTest = new HttpTest();
+            httpTest.RespondWith(response, 200);
+            var sut = new JenkinsStatusAggregator(url);
+            var result = await sut.GetActivityStatus();
+            result.Should().Be(CIActivityStatus.Idle);
+            httpTest.ShouldHaveCalled(url);
         }
 
 
@@ -36,15 +34,13 @@ namespace HueUpdater.Services
         [InlineData("BlueBlueAnime")]
         public async Task GetActivityStatus_BuildingJobs_IsExpected(string partialName)
         {
-            string response = File.ReadAllText($"Jenkins.{partialName}.json");
-            using (var httpTest = new HttpTest())
-            {
-                httpTest.RespondWith(response, 200);
-                var sut = new JenkinsStatusAggregator(url);
-                var result = await sut.GetActivityStatus();
-                result.Should().Be(CIActivityStatus.Building);
-                httpTest.ShouldHaveCalled(url);
-            }
+            var response = File.ReadAllText($"Jenkins.{partialName}.json");
+            using var httpTest = new HttpTest();
+            httpTest.RespondWith(response, 200);
+            var sut = new JenkinsStatusAggregator(url);
+            var result = await sut.GetActivityStatus();
+            result.Should().Be(CIActivityStatus.Building);
+            httpTest.ShouldHaveCalled(url);
         }
 
 
@@ -52,15 +48,13 @@ namespace HueUpdater.Services
         [InlineData("BlueBlueAnime")]
         public async Task GetBuildStatus_StableJobs_IsExpected(string partialName)
         {
-            string response = File.ReadAllText($"Jenkins.{partialName}.json");
-            using (var httpTest = new HttpTest())
-            {
-                httpTest.RespondWith(response, 200);
-                var sut = new JenkinsStatusAggregator(url);
-                var result = await sut.GetBuildStatus();
-                result.Should().Be(CIBuildStatus.Stable);
-                httpTest.ShouldHaveCalled(url);
-            }
+            var response = File.ReadAllText($"Jenkins.{partialName}.json");
+            using var httpTest = new HttpTest();
+            httpTest.RespondWith(response, 200);
+            var sut = new JenkinsStatusAggregator(url);
+            var result = await sut.GetBuildStatus();
+            result.Should().Be(CIBuildStatus.Stable);
+            httpTest.ShouldHaveCalled(url);
         }
 
 
@@ -69,47 +63,41 @@ namespace HueUpdater.Services
         [InlineData("BlueYellowGrey")]
         public async Task GetBuildStatus_BrokenJobs_IsExpected(string partialName)
         {
-            string response = File.ReadAllText($"Jenkins.{partialName}.json");
-            using (var httpTest = new HttpTest())
-            {
-                httpTest.RespondWith(response, 200);
-                var sut = new JenkinsStatusAggregator(url);
-                var result = await sut.GetBuildStatus();
-                result.Should().Be(CIBuildStatus.Broken);
-                httpTest.ShouldHaveCalled(url);
-            }
+            var response = File.ReadAllText($"Jenkins.{partialName}.json");
+            using var httpTest = new HttpTest();
+            httpTest.RespondWith(response, 200);
+            var sut = new JenkinsStatusAggregator(url);
+            var result = await sut.GetBuildStatus();
+            result.Should().Be(CIBuildStatus.Broken);
+            httpTest.ShouldHaveCalled(url);
         }
 
 
         [Fact]
         public async Task GetJobColorsAsync_BlueYellowGrey_IsExpected()
         {
-            string response = File.ReadAllText("Jenkins.BlueYellowGrey.json");
-            using (var httpTest = new HttpTest())
-            {
-                httpTest.RespondWith(response, 200);
-                var sut = new JenkinsStatusAggregator(url);
-                var result = await sut.GetJobColorsAsync();
-                result.Should().Contain("blue", "yellow");
-                result.Should().NotContain("grey");
-                httpTest.ShouldHaveCalled(url);
-            }
+            var response = File.ReadAllText("Jenkins.BlueYellowGrey.json");
+            using var httpTest = new HttpTest();
+            httpTest.RespondWith(response, 200);
+            var sut = new JenkinsStatusAggregator(url);
+            var result = await sut.GetJobColorsAsync();
+            result.Should().Contain("blue", "yellow");
+            result.Should().NotContain("grey");
+            httpTest.ShouldHaveCalled(url);
         }
 
 
         [Fact]
         public async Task GetJobColorsAsync_Filtered_IsExpected()
         {
-            string response = File.ReadAllText("Jenkins.BlueYellowGrey.json");
-            using (var httpTest = new HttpTest())
-            {
-                httpTest.RespondWith(response, 200);
-                var sut = new JenkinsStatusAggregator(url, "JOB1");
-                var result = await sut.GetJobColorsAsync();
-                result.Should().Contain("blue");
-                result.Should().HaveCount(1);
-                httpTest.ShouldHaveCalled(url);
-            }
+            var response = File.ReadAllText("Jenkins.BlueYellowGrey.json");
+            using var httpTest = new HttpTest();
+            httpTest.RespondWith(response, 200);
+            var sut = new JenkinsStatusAggregator(url, "JOB1");
+            var result = await sut.GetJobColorsAsync();
+            result.Should().Contain("blue");
+            result.Should().HaveCount(1);
+            httpTest.ShouldHaveCalled(url);
         }
 
     }

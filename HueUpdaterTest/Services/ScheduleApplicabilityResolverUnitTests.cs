@@ -28,6 +28,15 @@ namespace HueUpdater.Services
         }
 
 
+        [Fact]
+        public void Resolve_Null_Throws()
+        {
+            var sut = new ScheduleApplicabilityResolver(new ScheduleSettings());
+            Action action = () => sut.Resolve(null);
+            action.Should().ThrowExactly<ArgumentNullException>();
+        }
+
+
         [Theory]
         [InlineData(null, null)]
         [InlineData(null, "")]

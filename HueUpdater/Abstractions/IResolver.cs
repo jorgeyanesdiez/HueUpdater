@@ -6,7 +6,7 @@
     /// </summary>
     /// <typeparam name="TInput">The type of the input supported.</typeparam>
     /// <typeparam name="TResult">The type of the resolved result.</typeparam>
-    public interface IResolver<TInput, TResult>
+    public interface IResolver<in TInput, out TResult>
     {
 
         /// <summary>

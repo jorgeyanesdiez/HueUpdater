@@ -10,6 +10,16 @@ namespace HueUpdater.Services
     {
 
         [Fact]
+        public void Deserialize_NonExisting_IsExpected()
+        {
+            var filePath = "NonExistingFile";
+            var sut = new JsonNetFileSerializer(filePath);
+            var result = sut.Deserialize<SerializationExample>();
+            result.Should().BeNull();
+        }
+
+
+        [Fact]
         public void Deserialize_SerializationExample_IsExpected()
         {
             var filePath = "SerializationExample.input.json";
