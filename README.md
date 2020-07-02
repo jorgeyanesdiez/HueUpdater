@@ -28,7 +28,7 @@ I use a lamp on my desk at work to give me feedback about the status of multiple
 
 This application manages that lamp.
 
-The current version connects to a Jenkins instance and a TeamCity instance, and aggregates the status values to determine the light color.
+The current version connects to a Jenkins instance and aggregates the status values to determine the light color.
 
 Depending on a defined schedule and a calendar, it then turns the lamp on/off, and sets the light color accordingly.
 
@@ -45,9 +45,8 @@ Depending on a defined schedule and a calendar, it then turns the lamp on/off, a
 
 * User credentials for the Jenkins instance.
 
-* User credentials for the TeamCity instance.
-
 * The user that runs the application must have write permissions on the location where the last status file is written.
+
 
 
 
@@ -101,26 +100,6 @@ Open the *appsettings.json* file with a plain text editor and tweak the values a
 * **Jenkins** -> ***Password***
 
   The password to authenticate requests to Jenkins with.
-
-
-
-* **TeamCity** -> ***BaseEndpoint***
-
-  Base of the TeamCity instance.
-
-  Example: `http://teamcity-server.mycompany.com`
-
-
-
-* **TeamCity** -> ***User***
-
-  The user name to authenticate requests to TeamCity with.
-
-
-
-* **TeamCity** -> ***Password***
-
-  The password to authenticate requests to TeamCity with.
 
 
 

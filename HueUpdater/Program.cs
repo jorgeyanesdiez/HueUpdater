@@ -68,17 +68,14 @@ namespace HueUpdater
 
                     //TODO: Use an assembly scanner to make these pluggable?
                     services.AddSingleton(sp => CreateInstance<JenkinsStatusAggregator>(sp, appSettings.Jenkins.BaseEndpoint, appSettings.Jenkins.JobNameRegexFilter));
-                    services.AddSingleton(sp => CreateInstance<TeamCityStatusAggregator>(sp, appSettings.TeamCity.BaseEndpoint));
                     services.AddSingleton<IActivityStatusAggregator<Task<CIActivityStatus>>>(sp => sp.GetRequiredService<JenkinsStatusAggregator>());
                     services.AddSingleton<IBuildStatusAggregator<Task<CIBuildStatus>>>(sp => sp.GetRequiredService<JenkinsStatusAggregator>());
-                    services.AddSingleton<IActivityStatusAggregator<Task<CIActivityStatus>>>(sp => sp.GetRequiredService<TeamCityStatusAggregator>());
-                    services.AddSingleton<IBuildStatusAggregator<Task<CIBuildStatus>>>(sp => sp.GetRequiredService<TeamCityStatusAggregator>());
 
                     // Hosted service DI
                     services.AddHostedService<HueUpdaterService>();
 
                     // Application services configuration
-                    ConfigureAppServices(appSettings.Jenkins, appSettings.TeamCity);
+                    ConfigureAppServices(appSettings.Jenkins);
                 })
                 .ConfigureLogging((hostContext, configLogging) =>
                 {
@@ -92,8 +89,7 @@ namespace HueUpdater
         /// Configures the application services that require configuration.
         /// </summary>
         /// <param name="jenkinsSettings">The settings required to configure Jenkins requests.</param>
-        /// <param name="teamCitySettings">The settings required to configure TeamCity requests.</param>
-        private static void ConfigureAppServices(JenkinsSettings jenkinsSettings, TeamCitySettings teamCitySettings)
+        private static void ConfigureAppServices(JenkinsSettings jenkinsSettings)
         {
             var jsonSettings = new JsonSerializerSettings { ContractResolver = new CamelCasePropertyNamesContractResolver() };
             FlurlHttp.Configure(s => s.JsonSerializer = new NewtonsoftJsonSerializer(jsonSettings));
@@ -102,12 +98,6 @@ namespace HueUpdater
                 cl.WithBasicAuth(jenkinsSettings.User, jenkinsSettings.Password)
             );
             jenkinsSettings.Password = null;
-
-            FlurlHttp.ConfigureClient(teamCitySettings.BaseEndpoint, cl =>
-                cl.WithHeader("Accept", "application/json")
-                  .WithBasicAuth(teamCitySettings.User, teamCitySettings.Password)
-            );
-            teamCitySettings.Password = null;
         }
 
     }
