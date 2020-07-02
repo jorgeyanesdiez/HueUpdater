@@ -94,9 +94,12 @@ namespace HueUpdater
             var jsonSettings = new JsonSerializerSettings { ContractResolver = new CamelCasePropertyNamesContractResolver() };
             FlurlHttp.Configure(s => s.JsonSerializer = new NewtonsoftJsonSerializer(jsonSettings));
 
-            FlurlHttp.ConfigureClient(jenkinsSettings.BaseEndpoint, cl =>
-                cl.WithBasicAuth(jenkinsSettings.User, jenkinsSettings.Password)
-            );
+            if (!string.IsNullOrWhiteSpace(jenkinsSettings.User) || !string.IsNullOrWhiteSpace(jenkinsSettings.Password))
+            {
+                FlurlHttp.ConfigureClient(jenkinsSettings.BaseEndpoint, cl =>
+                    cl.WithBasicAuth(jenkinsSettings.User, jenkinsSettings.Password)
+                );
+            }
             jenkinsSettings.Password = null;
         }
 
