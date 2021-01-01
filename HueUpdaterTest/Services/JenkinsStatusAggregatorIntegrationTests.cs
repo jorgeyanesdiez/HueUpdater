@@ -1,6 +1,7 @@
 ﻿using System.IO;
 using System.Threading.Tasks;
 using FluentAssertions;
+using Flurl;
 using Flurl.Http.Testing;
 using HueUpdater.Models;
 using Xunit;
@@ -25,7 +26,7 @@ namespace HueUpdater.Services
             var sut = new JenkinsStatusAggregator(url);
             var result = await sut.GetActivityStatus();
             result.Should().Be(CIActivityStatus.Idle);
-            httpTest.ShouldHaveCalled(url);
+            httpTest.ShouldHaveCalled(Url.Combine(url, "*"));
         }
 
 
@@ -40,7 +41,7 @@ namespace HueUpdater.Services
             var sut = new JenkinsStatusAggregator(url);
             var result = await sut.GetActivityStatus();
             result.Should().Be(CIActivityStatus.Building);
-            httpTest.ShouldHaveCalled(url);
+            httpTest.ShouldHaveCalled(Url.Combine(url, "*"));
         }
 
 
@@ -54,7 +55,7 @@ namespace HueUpdater.Services
             var sut = new JenkinsStatusAggregator(url);
             var result = await sut.GetBuildStatus();
             result.Should().Be(CIBuildStatus.Stable);
-            httpTest.ShouldHaveCalled(url);
+            httpTest.ShouldHaveCalled(Url.Combine(url, "*"));
         }
 
 
@@ -69,7 +70,7 @@ namespace HueUpdater.Services
             var sut = new JenkinsStatusAggregator(url);
             var result = await sut.GetBuildStatus();
             result.Should().Be(CIBuildStatus.Broken);
-            httpTest.ShouldHaveCalled(url);
+            httpTest.ShouldHaveCalled(Url.Combine(url, "*"));
         }
 
 
@@ -83,7 +84,7 @@ namespace HueUpdater.Services
             var result = await sut.GetJobColorsAsync();
             result.Should().Contain("blue", "yellow");
             result.Should().NotContain("grey");
-            httpTest.ShouldHaveCalled(url);
+            httpTest.ShouldHaveCalled(Url.Combine(url, "*"));
         }
 
 
@@ -97,7 +98,7 @@ namespace HueUpdater.Services
             var result = await sut.GetJobColorsAsync();
             result.Should().Contain("blue");
             result.Should().HaveCount(1);
-            httpTest.ShouldHaveCalled(url);
+            httpTest.ShouldHaveCalled(Url.Combine(url, "*"));
         }
 
     }
