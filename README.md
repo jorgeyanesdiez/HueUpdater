@@ -126,12 +126,12 @@ The calendar and schedules should be modified to your needs too.
 
   ```json
   "2-Regular": [
-    { "Start": "2020/01/01", "Finish": "2020/01/01" },
-    { "Start": "2020/02/01", "Finish": "2020/02/20" }
+    { "Start": "2022/01/05", "Finish": "2022/01/05" },
+    { "Start": "2022/02/01", "Finish": "2022/02/20" }
   ]
   ```
 
-  This defines a calendar that applies the *2-Regular* schedule during the first day of year 2020, and for the first 20 days in February of year 2020.
+  This defines a calendar that applies the *2-Regular* schedule during the fifth day of year 2022, and for the first 20 days in February of year 2022.
 
 
 
@@ -142,7 +142,7 @@ The calendar and schedules should be modified to your needs too.
   "1-Off": [ "Saturday", "Sunday" ]
   ```
 
-  This defines an override that causes the schedule to be *1-Off* on Saturdays and Sundays. Following the previous examples, this would mean that on days February 1, 2, 8, 9, 15, and 16 of year 2020, the applicable schedule will be *1-Off* and not *2-Regular*.
+  This defines an override that causes the schedule to be *1-Off* on Saturdays and Sundays. Following the previous examples, this would mean that on days February 5, 6, 12, 13, 19, and 20 of year 2022, the applicable schedule will be *1-Off* and not *2-Regular*.
 
 
 
