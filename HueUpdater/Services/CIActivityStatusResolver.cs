@@ -15,8 +15,8 @@ namespace HueUpdater.Services
         /// <inheritdoc />
         public CIActivityStatus Resolve(params CIActivityStatus[] input)
         {
-            var statuses = input ?? Enumerable.Empty<CIActivityStatus>();
-            var status = statuses.Any(s => s == CIActivityStatus.Building) ? CIActivityStatus.Building : CIActivityStatus.Idle;
+            var statusCollection = input ?? Enumerable.Empty<CIActivityStatus>();
+            var status = statusCollection.Any(s => s == CIActivityStatus.Building) ? CIActivityStatus.Building : CIActivityStatus.Idle;
             return status;
         }
 

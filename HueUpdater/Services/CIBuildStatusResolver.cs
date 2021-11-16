@@ -15,8 +15,8 @@ namespace HueUpdater.Services
         /// <inheritdoc />
         public CIBuildStatus Resolve(params CIBuildStatus[] input)
         {
-            var statuses = input ?? Enumerable.Empty<CIBuildStatus>();
-            var status = statuses.Any(s => s == CIBuildStatus.Broken) ? CIBuildStatus.Broken : CIBuildStatus.Stable;
+            var statusCollection = input ?? Enumerable.Empty<CIBuildStatus>();
+            var status = statusCollection.Any(s => s == CIBuildStatus.Broken) ? CIBuildStatus.Broken : CIBuildStatus.Stable;
             return status;
         }
 
