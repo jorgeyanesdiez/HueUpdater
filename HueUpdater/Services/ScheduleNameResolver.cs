@@ -36,7 +36,7 @@ namespace HueUpdater.Services
             var defaultName = ResolveDefault(date);
             var scheduleName = defaultName;
 
-            if (overridenName != null && !(Calendar.DayOverridesExclusions?.Contains(defaultName) ?? false))
+            if (overridenName != null && !(Calendar.DayOverridesExclusions?.Contains(defaultName ?? Guid.NewGuid().ToString()) ?? false))
             {
                 scheduleName = overridenName;
             }
