@@ -7,9 +7,9 @@
     public class JenkinsSettings
     {
         public string BaseEndpoint { get; set; }
-        public string JobNameRegexFilter { get; set; }
-        public string User { get; set; }
-        public string Password { get; set; }
+        public string JobNameRegexFilter { get; set; } = null;
+        public string User { get; set; } = null;
+        public string Password { get; set; } = null;
     }
 
 }
