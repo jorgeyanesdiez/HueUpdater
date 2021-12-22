@@ -145,7 +145,7 @@ namespace HueUpdater.Services
         }
 
 
-        private CalendarSettings CreateMalformedCalendar()
+        private static CalendarSettings CreateMalformedCalendar()
         {
             var malformedCalendar = new CalendarSettings()
             {
@@ -158,7 +158,7 @@ namespace HueUpdater.Services
         }
 
 
-        private CalendarSettings CreateInvalidCalendar()
+        private static CalendarSettings CreateInvalidCalendar()
         {
             var invalidCalendar = new CalendarSettings()
             {
@@ -177,7 +177,7 @@ namespace HueUpdater.Services
         }
 
 
-        private CalendarSettings CreateCalendar()
+        private static CalendarSettings CreateCalendar()
         {
             var calendar = new CalendarSettings()
             {

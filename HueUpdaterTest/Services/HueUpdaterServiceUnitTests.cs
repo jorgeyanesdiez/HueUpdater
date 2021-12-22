@@ -285,7 +285,7 @@ namespace HueUpdater.Services
                 Mock.Of<ISerializer>(),
                 Mock.Of<IResolver<ScheduleQuery, bool>>(),
                 Mock.Of<IResolver<DateTime, (string Name, TimeRangeSettings Times)>>(),
-                new IActivityStatusAggregator<Task<CIActivityStatus>>[0],
+                Array.Empty<IActivityStatusAggregator<Task<CIActivityStatus>>>(),
                 new[] { Mock.Of<IBuildStatusAggregator<Task<CIBuildStatus>>>() }
             );
             action.Should().ThrowExactly<ArgumentOutOfRangeException>();
@@ -307,7 +307,7 @@ namespace HueUpdater.Services
                 Mock.Of<IResolver<ScheduleQuery, bool>>(),
                 Mock.Of<IResolver<DateTime, (string Name, TimeRangeSettings Times)>>(),
                 new[] { Mock.Of<IActivityStatusAggregator<Task<CIActivityStatus>>>() },
-                new IBuildStatusAggregator<Task<CIBuildStatus>>[0]
+                Array.Empty<IBuildStatusAggregator<Task<CIBuildStatus>>>()
             );
             action.Should().ThrowExactly<ArgumentOutOfRangeException>();
         }

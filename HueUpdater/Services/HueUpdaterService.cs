@@ -146,7 +146,7 @@ namespace HueUpdater.Services
             try { await UpdateHueEndpointAsync(); }
             catch (Exception exc)
             {
-                Logger.LogError($"An error was encountered: {exc.GetType()}");
+                Logger.LogError("An error was encountered: {ExceptionType}", exc.GetType());
                 throw;
             }
             finally { AppLifetime.StopApplication(); }
@@ -162,8 +162,8 @@ namespace HueUpdater.Services
             var dateTime = DateTime.Now;
             var (scheduleName, scheduleTime) = ScheduleResolver.Resolve(dateTime.Date);
             var isScheduleApplicable = ScheduleApplicabilityResolver.Resolve(new ScheduleQuery { ScheduleName = scheduleName, Time = dateTime.TimeOfDay });
-            Logger.LogInformation($"Schedule: {scheduleName} | {scheduleTime.Start} - {scheduleTime.Finish}");
-            Logger.LogInformation($"Time: {dateTime:HH:mm} | Lamp turned on? {isScheduleApplicable}");
+            Logger.LogInformation("Schedule: {ScheduleName} | {ScheduleTimeStart} - {ScheduleTimeFinish}", scheduleName, scheduleTime.Start, scheduleTime.Finish);
+            Logger.LogInformation("Time: {Timestamp} | Schedule applicable? {ScheduleApplicable}", $"{dateTime:HH:mm}", isScheduleApplicable);
 
             if (isScheduleApplicable)
             {
@@ -179,7 +179,7 @@ namespace HueUpdater.Services
                 var hueColor = HueColorResolver.Resolve(currentStatus);
                 var hueAlert = HueAlertResolver.Resolve(new CIStatusChangeQuery { Current = currentStatus, Previous = previousStatus });
 
-                Logger.LogInformation($"Status: { currentStatus.ActivityStatus } - { currentStatus.BuildStatus }");
+                Logger.LogInformation("Status: {ActivityStatus} - {BuildStatus}", currentStatus.ActivityStatus, currentStatus.BuildStatus);
                 await HueInvoker.PutAsync(hueColor);
                 await HueInvoker.PutAsync(hueAlert);
             }

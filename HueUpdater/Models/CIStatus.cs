@@ -32,6 +32,19 @@ namespace HueUpdater.Models
             return result;
         }
 
+
+        /// <inheritdoc/>
+        public override bool Equals(object obj)
+        {
+            return Equals(obj as CIStatus);
+        }
+
+
+        /// <inheritdoc/>
+        public override int GetHashCode()
+        {
+            return HashCode.Combine(ActivityStatus, BuildStatus);
+        }
     }
 
 }

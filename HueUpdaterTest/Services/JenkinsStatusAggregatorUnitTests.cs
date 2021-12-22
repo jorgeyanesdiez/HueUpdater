@@ -34,7 +34,7 @@ namespace HueUpdater.Services
         public void ResolveActivityStatus_Empty_IsExpected()
         {
             var sut = new JenkinsStatusAggregator(url);
-            var result = sut.ResolveActivityStatus(new string[0]);
+            var result = sut.ResolveActivityStatus(Array.Empty<string>());
             result.Should().Be(CIActivityStatus.Idle);
         }
 
@@ -88,7 +88,7 @@ namespace HueUpdater.Services
         public void ResolveBuildStatus_Empty_IsExpected()
         {
             var sut = new JenkinsStatusAggregator(url);
-            var result = sut.ResolveBuildStatus(new string[0]);
+            var result = sut.ResolveBuildStatus(Array.Empty<string>());
             result.Should().Be(CIBuildStatus.Stable);
         }
 

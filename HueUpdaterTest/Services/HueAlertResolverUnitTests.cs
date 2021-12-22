@@ -11,10 +11,10 @@ namespace HueUpdater.Services
     public class HueAlertResolverUnitTests
     {
 
-        private static readonly CIStatus idleStable = new CIStatus { ActivityStatus = CIActivityStatus.Idle, BuildStatus = CIBuildStatus.Stable };
-        private static readonly CIStatus idleBroken = new CIStatus { ActivityStatus = CIActivityStatus.Idle, BuildStatus = CIBuildStatus.Broken };
-        private static readonly CIStatus buildingStable = new CIStatus { ActivityStatus = CIActivityStatus.Building, BuildStatus = CIBuildStatus.Stable };
-        private static readonly CIStatus buildingBroken = new CIStatus { ActivityStatus = CIActivityStatus.Building, BuildStatus = CIBuildStatus.Broken };
+        private static readonly CIStatus idleStable = new() { ActivityStatus = CIActivityStatus.Idle, BuildStatus = CIBuildStatus.Stable };
+        private static readonly CIStatus idleBroken = new() { ActivityStatus = CIActivityStatus.Idle, BuildStatus = CIBuildStatus.Broken };
+        private static readonly CIStatus buildingStable = new() { ActivityStatus = CIActivityStatus.Building, BuildStatus = CIBuildStatus.Stable };
+        private static readonly CIStatus buildingBroken = new() { ActivityStatus = CIActivityStatus.Building, BuildStatus = CIBuildStatus.Broken };
 
 
         public static IEnumerable<object[]> Resolve_Same_IsExpected_Data => new object[][]

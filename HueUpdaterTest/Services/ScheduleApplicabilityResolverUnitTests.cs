@@ -77,7 +77,7 @@ namespace HueUpdater.Services
         }
 
 
-        private ScheduleSettings CreateSchedules()
+        private static ScheduleSettings CreateSchedules()
         {
             var schedules = new ScheduleSettings
             {
