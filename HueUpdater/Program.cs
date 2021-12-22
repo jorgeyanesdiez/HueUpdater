@@ -49,7 +49,7 @@ namespace HueUpdater
                 .ConfigureAppConfiguration((hostContext, configApp) =>
                 {
                     configApp.AddJsonFile("appsettings.json");
-                    configApp.AddUserSecrets<Program>();
+                    configApp.AddUserSecrets<Program>(optional: true);
                 })
                 .ConfigureServices((hostContext, services) =>
                 {
