@@ -66,7 +66,7 @@ namespace HueUpdater
                     services.AddSingleton<IResolver<DateTime, string>>(sp => CreateInstance<ScheduleNameResolver>(sp, appSettings.Operation.Calendar));
                     services.AddSingleton<IResolver<DateTime, (string Name, TimeRangeSettings Times)>>(sp => CreateInstance<ScheduleResolver>(sp, appSettings.Operation.Schedules));
 
-                    //TODO: Use an assembly scanner to make these pluggable?
+                    // Status services DI - May eventually use an assembly scanner to make these pluggable.
                     services.AddSingleton(sp => CreateInstance<JenkinsStatusAggregator>(sp, appSettings.Jenkins.BaseEndpoint, appSettings.Jenkins.JobNameRegexFilter));
                     services.AddSingleton<IActivityStatusAggregator<Task<CIActivityStatus>>>(sp => sp.GetRequiredService<JenkinsStatusAggregator>());
                     services.AddSingleton<IBuildStatusAggregator<Task<CIBuildStatus>>>(sp => sp.GetRequiredService<JenkinsStatusAggregator>());
