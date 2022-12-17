@@ -4,7 +4,7 @@
     <OutputType>Exe</OutputType>
     <TargetFramework>net6.0</TargetFramework>
     <UserSecretsId>HueUpdater</UserSecretsId>
-    <Version>0.7.0</Version>
+    <Version>0.8.0</Version>
     <Authors>Jorge Yanes Diez</Authors>
     <Company>yanes.tech</Company>
     <Nullable>disable</Nullable>
