@@ -33,8 +33,8 @@ namespace HueUpdater.Services
                 Mock.Of<ISerializer>(),
                 Mock.Of<IResolver<ScheduleQuery, bool>>(),
                 Mock.Of<IResolver<DateTime, (string Name, TimeRangeSettings Times)>>(),
-                new[] { Mock.Of<IActivityStatusAggregator<Task<CIActivityStatus>>>() },
-                new[] { Mock.Of<IBuildStatusAggregator<Task<CIBuildStatus>>>() }
+                new[] { Mock.Of<IActivityStatusProvider<Task<CIActivityStatus>>>() },
+                new[] { Mock.Of<IBuildStatusProvider<Task<CIBuildStatus>>>() }
             );
             action.Should().ThrowExactly<ArgumentNullException>();
         }
@@ -54,8 +54,8 @@ namespace HueUpdater.Services
                 Mock.Of<ISerializer>(),
                 Mock.Of<IResolver<ScheduleQuery, bool>>(),
                 Mock.Of<IResolver<DateTime, (string Name, TimeRangeSettings Times)>>(),
-                new[] { Mock.Of<IActivityStatusAggregator<Task<CIActivityStatus>>>() },
-                new[] { Mock.Of<IBuildStatusAggregator<Task<CIBuildStatus>>>() }
+                new[] { Mock.Of<IActivityStatusProvider<Task<CIActivityStatus>>>() },
+                new[] { Mock.Of<IBuildStatusProvider<Task<CIBuildStatus>>>() }
             );
             action.Should().ThrowExactly<ArgumentNullException>();
         }
@@ -75,8 +75,8 @@ namespace HueUpdater.Services
                 Mock.Of<ISerializer>(),
                 Mock.Of<IResolver<ScheduleQuery, bool>>(),
                 Mock.Of<IResolver<DateTime, (string Name, TimeRangeSettings Times)>>(),
-                new[] { Mock.Of<IActivityStatusAggregator<Task<CIActivityStatus>>>() },
-                new[] { Mock.Of<IBuildStatusAggregator<Task<CIBuildStatus>>>() }
+                new[] { Mock.Of<IActivityStatusProvider<Task<CIActivityStatus>>>() },
+                new[] { Mock.Of<IBuildStatusProvider<Task<CIBuildStatus>>>() }
             );
             action.Should().ThrowExactly<ArgumentNullException>();
         }
@@ -96,8 +96,8 @@ namespace HueUpdater.Services
                 Mock.Of<ISerializer>(),
                 Mock.Of<IResolver<ScheduleQuery, bool>>(),
                 Mock.Of<IResolver<DateTime, (string Name, TimeRangeSettings Times)>>(),
-                new[] { Mock.Of<IActivityStatusAggregator<Task<CIActivityStatus>>>() },
-                new[] { Mock.Of<IBuildStatusAggregator<Task<CIBuildStatus>>>() }
+                new[] { Mock.Of<IActivityStatusProvider<Task<CIActivityStatus>>>() },
+                new[] { Mock.Of<IBuildStatusProvider<Task<CIBuildStatus>>>() }
             );
             action.Should().ThrowExactly<ArgumentNullException>();
         }
@@ -117,8 +117,8 @@ namespace HueUpdater.Services
                 Mock.Of<ISerializer>(),
                 Mock.Of<IResolver<ScheduleQuery, bool>>(),
                 Mock.Of<IResolver<DateTime, (string Name, TimeRangeSettings Times)>>(),
-                new[] { Mock.Of<IActivityStatusAggregator<Task<CIActivityStatus>>>() },
-                new[] { Mock.Of<IBuildStatusAggregator<Task<CIBuildStatus>>>() }
+                new[] { Mock.Of<IActivityStatusProvider<Task<CIActivityStatus>>>() },
+                new[] { Mock.Of<IBuildStatusProvider<Task<CIBuildStatus>>>() }
             );
             action.Should().ThrowExactly<ArgumentNullException>();
         }
@@ -138,8 +138,8 @@ namespace HueUpdater.Services
                 Mock.Of<ISerializer>(),
                 Mock.Of<IResolver<ScheduleQuery, bool>>(),
                 Mock.Of<IResolver<DateTime, (string Name, TimeRangeSettings Times)>>(),
-                new[] { Mock.Of<IActivityStatusAggregator<Task<CIActivityStatus>>>() },
-                new[] { Mock.Of<IBuildStatusAggregator<Task<CIBuildStatus>>>() }
+                new[] { Mock.Of<IActivityStatusProvider<Task<CIActivityStatus>>>() },
+                new[] { Mock.Of<IBuildStatusProvider<Task<CIBuildStatus>>>() }
             );
             action.Should().ThrowExactly<ArgumentNullException>();
         }
@@ -159,8 +159,8 @@ namespace HueUpdater.Services
                 Mock.Of<ISerializer>(),
                 Mock.Of<IResolver<ScheduleQuery, bool>>(),
                 Mock.Of<IResolver<DateTime, (string Name, TimeRangeSettings Times)>>(),
-                new[] { Mock.Of<IActivityStatusAggregator<Task<CIActivityStatus>>>() },
-                new[] { Mock.Of<IBuildStatusAggregator<Task<CIBuildStatus>>>() }
+                new[] { Mock.Of<IActivityStatusProvider<Task<CIActivityStatus>>>() },
+                new[] { Mock.Of<IBuildStatusProvider<Task<CIBuildStatus>>>() }
             );
             action.Should().ThrowExactly<ArgumentNullException>();
         }
@@ -180,8 +180,8 @@ namespace HueUpdater.Services
                 null,
                 Mock.Of<IResolver<ScheduleQuery, bool>>(),
                 Mock.Of<IResolver<DateTime, (string Name, TimeRangeSettings Times)>>(),
-                new[] { Mock.Of<IActivityStatusAggregator<Task<CIActivityStatus>>>() },
-                new[] { Mock.Of<IBuildStatusAggregator<Task<CIBuildStatus>>>() }
+                new[] { Mock.Of<IActivityStatusProvider<Task<CIActivityStatus>>>() },
+                new[] { Mock.Of<IBuildStatusProvider<Task<CIBuildStatus>>>() }
             );
             action.Should().ThrowExactly<ArgumentNullException>();
         }
@@ -201,8 +201,8 @@ namespace HueUpdater.Services
                 Mock.Of<ISerializer>(),
                 null,
                 Mock.Of<IResolver<DateTime, (string Name, TimeRangeSettings Times)>>(),
-                new[] { Mock.Of<IActivityStatusAggregator<Task<CIActivityStatus>>>() },
-                new[] { Mock.Of<IBuildStatusAggregator<Task<CIBuildStatus>>>() }
+                new[] { Mock.Of<IActivityStatusProvider<Task<CIActivityStatus>>>() },
+                new[] { Mock.Of<IBuildStatusProvider<Task<CIBuildStatus>>>() }
             );
             action.Should().ThrowExactly<ArgumentNullException>();
         }
@@ -222,15 +222,15 @@ namespace HueUpdater.Services
                 Mock.Of<ISerializer>(),
                 Mock.Of<IResolver<ScheduleQuery, bool>>(),
                 null,
-                new[] { Mock.Of<IActivityStatusAggregator<Task<CIActivityStatus>>>() },
-                new[] { Mock.Of<IBuildStatusAggregator<Task<CIBuildStatus>>>() }
+                new[] { Mock.Of<IActivityStatusProvider<Task<CIActivityStatus>>>() },
+                new[] { Mock.Of<IBuildStatusProvider<Task<CIBuildStatus>>>() }
             );
             action.Should().ThrowExactly<ArgumentNullException>();
         }
 
 
         [Fact]
-        public void Constructor_NullActivityStatusAggregators_Throws()
+        public void Constructor_NullActivityStatusProviders_Throws()
         {
             Action action = () => new HueUpdaterService(
                 Mock.Of<IHostApplicationLifetime>(),
@@ -244,14 +244,14 @@ namespace HueUpdater.Services
                 Mock.Of<IResolver<ScheduleQuery, bool>>(),
                 Mock.Of<IResolver<DateTime, (string Name, TimeRangeSettings Times)>>(),
                 null,
-                new[] { Mock.Of<IBuildStatusAggregator<Task<CIBuildStatus>>>() }
+                new[] { Mock.Of<IBuildStatusProvider<Task<CIBuildStatus>>>() }
             );
             action.Should().ThrowExactly<ArgumentNullException>();
         }
 
 
         [Fact]
-        public void Constructor_NullBuildStatusAggregators_Throws()
+        public void Constructor_NullBuildStatusProviders_Throws()
         {
             Action action = () => new HueUpdaterService(
                 Mock.Of<IHostApplicationLifetime>(),
@@ -264,7 +264,7 @@ namespace HueUpdater.Services
                 Mock.Of<ISerializer>(),
                 Mock.Of<IResolver<ScheduleQuery, bool>>(),
                 Mock.Of<IResolver<DateTime, (string Name, TimeRangeSettings Times)>>(),
-                new[] { Mock.Of<IActivityStatusAggregator<Task<CIActivityStatus>>>() },
+                new[] { Mock.Of<IActivityStatusProvider<Task<CIActivityStatus>>>() },
                 null
             );
             action.Should().ThrowExactly<ArgumentNullException>();
@@ -272,7 +272,7 @@ namespace HueUpdater.Services
 
 
         [Fact]
-        public void Constructor_EmptyActivityStatusAggregators_Throws()
+        public void Constructor_EmptyActivityStatusProviders_Throws()
         {
             Action action = () => new HueUpdaterService(
                 Mock.Of<IHostApplicationLifetime>(),
@@ -285,15 +285,15 @@ namespace HueUpdater.Services
                 Mock.Of<ISerializer>(),
                 Mock.Of<IResolver<ScheduleQuery, bool>>(),
                 Mock.Of<IResolver<DateTime, (string Name, TimeRangeSettings Times)>>(),
-                Array.Empty<IActivityStatusAggregator<Task<CIActivityStatus>>>(),
-                new[] { Mock.Of<IBuildStatusAggregator<Task<CIBuildStatus>>>() }
+                Array.Empty<IActivityStatusProvider<Task<CIActivityStatus>>>(),
+                new[] { Mock.Of<IBuildStatusProvider<Task<CIBuildStatus>>>() }
             );
             action.Should().ThrowExactly<ArgumentOutOfRangeException>();
         }
 
 
         [Fact]
-        public void Constructor_EmptyBuildStatusAggregators_Throws()
+        public void Constructor_EmptyBuildStatusProviders_Throws()
         {
             Action action = () => new HueUpdaterService(
                 Mock.Of<IHostApplicationLifetime>(),
@@ -306,8 +306,8 @@ namespace HueUpdater.Services
                 Mock.Of<ISerializer>(),
                 Mock.Of<IResolver<ScheduleQuery, bool>>(),
                 Mock.Of<IResolver<DateTime, (string Name, TimeRangeSettings Times)>>(),
-                new[] { Mock.Of<IActivityStatusAggregator<Task<CIActivityStatus>>>() },
-                Array.Empty<IBuildStatusAggregator<Task<CIBuildStatus>>>()
+                new[] { Mock.Of<IActivityStatusProvider<Task<CIActivityStatus>>>() },
+                Array.Empty<IBuildStatusProvider<Task<CIBuildStatus>>>()
             );
             action.Should().ThrowExactly<ArgumentOutOfRangeException>();
         }
@@ -326,8 +326,8 @@ namespace HueUpdater.Services
             var serializerMock = Mock.Of<ISerializer>();
             var scheduleApplicabilityResolverMock = Mock.Of<IResolver<ScheduleQuery, bool>>();
             var scheduleResolverMock = Mock.Of<IResolver<DateTime, (string Name, TimeRangeSettings Times)>>();
-            var activityStatusAggregatorMock = Mock.Of<IActivityStatusAggregator<Task<CIActivityStatus>>>();
-            var buildStatusAggregatorMock = Mock.Of<IBuildStatusAggregator<Task<CIBuildStatus>>>();
+            var activityStatusProviderMock = Mock.Of<IActivityStatusProvider<Task<CIActivityStatus>>>();
+            var buildStatusProviderMock = Mock.Of<IBuildStatusProvider<Task<CIBuildStatus>>>();
 
             appLifetimeMock.Setup(m => m.StopApplication()).Verifiable();
 
@@ -342,8 +342,8 @@ namespace HueUpdater.Services
                 serializerMock,
                 scheduleApplicabilityResolverMock,
                 scheduleResolverMock,
-                new[] { activityStatusAggregatorMock },
-                new[] { buildStatusAggregatorMock }
+                new[] { activityStatusProviderMock },
+                new[] { buildStatusProviderMock }
             );
 
             Func<Task> action = async () => await sut.StartAsync(new CancellationToken());
@@ -365,8 +365,8 @@ namespace HueUpdater.Services
             var serializerMock = new Mock<ISerializer>();
             var scheduleApplicabilityResolverMock = new Mock<IResolver<ScheduleQuery, bool>>();
             var scheduleResolverMock = new Mock<IResolver<DateTime, (string Name, TimeRangeSettings Times)>>();
-            var activityStatusAggregatorMock = new Mock<IActivityStatusAggregator<Task<CIActivityStatus>>>();
-            var buildStatusAggregatorMock = new Mock<IBuildStatusAggregator<Task<CIBuildStatus>>>();
+            var activityStatusProviderMock = new Mock<IActivityStatusProvider<Task<CIActivityStatus>>>();
+            var buildStatusProviderMock = new Mock<IBuildStatusProvider<Task<CIBuildStatus>>>();
 
             activityStatusResolverMock.Setup(m => m.Resolve(It.IsAny<CIActivityStatus[]>())).Returns(new CIActivityStatus()).Verifiable();
             buildStatusResolverMock.Setup(m => m.Resolve(It.IsAny<CIBuildStatus[]>())).Returns(new CIBuildStatus()).Verifiable();
@@ -379,8 +379,8 @@ namespace HueUpdater.Services
             serializerMock.Setup(m => m.Serialize(It.IsAny<CIStatus>())).Verifiable();
             scheduleApplicabilityResolverMock.Setup(m => m.Resolve(It.IsAny<ScheduleQuery>())).Returns(true).Verifiable();
             scheduleResolverMock.Setup(m => m.Resolve(It.IsAny<DateTime>())).Returns(("", new TimeRangeSettings())).Verifiable();
-            activityStatusAggregatorMock.Setup(m => m.GetActivityStatus()).ReturnsAsync(new CIActivityStatus()).Verifiable();
-            buildStatusAggregatorMock.Setup(m => m.GetBuildStatus()).ReturnsAsync(new CIBuildStatus()).Verifiable();
+            activityStatusProviderMock.Setup(m => m.GetActivityStatus()).ReturnsAsync(new CIActivityStatus()).Verifiable();
+            buildStatusProviderMock.Setup(m => m.GetBuildStatus()).ReturnsAsync(new CIBuildStatus()).Verifiable();
 
             var sut = new HueUpdaterService(
                 appLifetimeMock,
@@ -393,8 +393,8 @@ namespace HueUpdater.Services
                 serializerMock.Object,
                 scheduleApplicabilityResolverMock.Object,
                 scheduleResolverMock.Object,
-                new[] { activityStatusAggregatorMock.Object },
-                new[] { buildStatusAggregatorMock.Object }
+                new[] { activityStatusProviderMock.Object },
+                new[] { buildStatusProviderMock.Object }
             );
 
             await sut.UpdateHueEndpointAsync();
@@ -410,8 +410,8 @@ namespace HueUpdater.Services
             serializerMock.Verify(m => m.Serialize(It.IsAny<CIStatus>()), Times.Once);
             scheduleApplicabilityResolverMock.Verify(m => m.Resolve(It.IsAny<ScheduleQuery>()), Times.Once);
             scheduleResolverMock.Verify(m => m.Resolve(It.IsAny<DateTime>()), Times.Once);
-            activityStatusAggregatorMock.Verify(m => m.GetActivityStatus(), Times.Once);
-            buildStatusAggregatorMock.Verify(m => m.GetBuildStatus(), Times.Once);
+            activityStatusProviderMock.Verify(m => m.GetActivityStatus(), Times.Once);
+            buildStatusProviderMock.Verify(m => m.GetBuildStatus(), Times.Once);
         }
 
 
@@ -428,8 +428,8 @@ namespace HueUpdater.Services
             var serializerMock = new Mock<ISerializer>();
             var scheduleApplicabilityResolverMock = new Mock<IResolver<ScheduleQuery, bool>>();
             var scheduleResolverMock = new Mock<IResolver<DateTime, (string Name, TimeRangeSettings Times)>>();
-            var activityStatusAggregatorMock = new Mock<IActivityStatusAggregator<Task<CIActivityStatus>>>();
-            var buildStatusAggregatorMock = new Mock<IBuildStatusAggregator<Task<CIBuildStatus>>>();
+            var activityStatusProviderMock = new Mock<IActivityStatusProvider<Task<CIActivityStatus>>>();
+            var buildStatusProviderMock = new Mock<IBuildStatusProvider<Task<CIBuildStatus>>>();
 
             activityStatusResolverMock.Setup(m => m.Resolve(It.IsAny<CIActivityStatus[]>())).Returns(new CIActivityStatus()).Verifiable();
             buildStatusResolverMock.Setup(m => m.Resolve(It.IsAny<CIBuildStatus[]>())).Returns(new CIBuildStatus()).Verifiable();
@@ -442,8 +442,8 @@ namespace HueUpdater.Services
             serializerMock.Setup(m => m.Serialize(It.IsAny<CIStatus>())).Verifiable();
             scheduleApplicabilityResolverMock.Setup(m => m.Resolve(It.IsAny<ScheduleQuery>())).Returns(false).Verifiable();
             scheduleResolverMock.Setup(m => m.Resolve(It.IsAny<DateTime>())).Returns(("", new TimeRangeSettings())).Verifiable();
-            activityStatusAggregatorMock.Setup(m => m.GetActivityStatus()).ReturnsAsync(new CIActivityStatus()).Verifiable();
-            buildStatusAggregatorMock.Setup(m => m.GetBuildStatus()).ReturnsAsync(new CIBuildStatus()).Verifiable();
+            activityStatusProviderMock.Setup(m => m.GetActivityStatus()).ReturnsAsync(new CIActivityStatus()).Verifiable();
+            buildStatusProviderMock.Setup(m => m.GetBuildStatus()).ReturnsAsync(new CIBuildStatus()).Verifiable();
 
             var sut = new HueUpdaterService(
                 appLifetimeMock,
@@ -456,8 +456,8 @@ namespace HueUpdater.Services
                 serializerMock.Object,
                 scheduleApplicabilityResolverMock.Object,
                 scheduleResolverMock.Object,
-                new[] { activityStatusAggregatorMock.Object },
-                new[] { buildStatusAggregatorMock.Object }
+                new[] { activityStatusProviderMock.Object },
+                new[] { buildStatusProviderMock.Object }
             );
 
             await sut.UpdateHueEndpointAsync();
@@ -473,8 +473,8 @@ namespace HueUpdater.Services
             serializerMock.Verify(m => m.Serialize(It.IsAny<CIStatus>()), Times.Never);
             scheduleApplicabilityResolverMock.Verify(m => m.Resolve(It.IsAny<ScheduleQuery>()), Times.Once);
             scheduleResolverMock.Verify(m => m.Resolve(It.IsAny<DateTime>()), Times.Once);
-            activityStatusAggregatorMock.Verify(m => m.GetActivityStatus(), Times.Never);
-            buildStatusAggregatorMock.Verify(m => m.GetBuildStatus(), Times.Never);
+            activityStatusProviderMock.Verify(m => m.GetActivityStatus(), Times.Never);
+            buildStatusProviderMock.Verify(m => m.GetBuildStatus(), Times.Never);
         }
 
     }

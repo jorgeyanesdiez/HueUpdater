@@ -16,8 +16,8 @@ namespace HueUpdater.Services
     /// </summary>
     /// <seealso href="https://github.com/jenkinsci/jenkins/blob/master/core/src/main/java/hudson/model/BallColor.java"/>
     public class JenkinsStatusAggregator
-        : IActivityStatusAggregator<Task<CIActivityStatus>>
-        , IBuildStatusAggregator<Task<CIBuildStatus>>
+        : IActivityStatusProvider<Task<CIActivityStatus>>
+        , IBuildStatusProvider<Task<CIBuildStatus>>
     {
 
         /// <summary>

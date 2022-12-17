@@ -84,13 +84,13 @@ namespace HueUpdater.Services
         /// <summary>
         /// The services required to get activity information from different endpoints.
         /// </summary>
-        private IEnumerable<IActivityStatusAggregator<Task<CIActivityStatus>>> ActivityStatusAggregators { get; }
+        private IEnumerable<IActivityStatusProvider<Task<CIActivityStatus>>> ActivityStatusProviders { get; }
 
 
         /// <summary>
         /// The services required to get build status information from different endpoints.
         /// </summary>
-        private IEnumerable<IBuildStatusAggregator<Task<CIBuildStatus>>> BuildStatusAggregators { get; }
+        private IEnumerable<IBuildStatusProvider<Task<CIBuildStatus>>> BuildStatusProviders { get; }
 
 
         /// <summary>
@@ -106,8 +106,8 @@ namespace HueUpdater.Services
         /// <param name="serializer">The value for the <see cref="Serializer"/> property.</param>
         /// <param name="scheduleApplicabilityResolver">The value for the <see cref="ScheduleApplicabilityResolver"/> property.</param>
         /// <param name="scheduleResolver">The value for the <see cref="ScheduleResolver"/> property.</param>
-        /// <param name="activityStatusAggregators">The value for the <see cref="ActivityStatusAggregators"/> property.</param>
-        /// <param name="buildStatusAggregators">The value for the <see cref="BuildStatusAggregators"/> property.</param>
+        /// <param name="activityStatusProviders">The value for the <see cref="ActivityStatusProviders"/> property.</param>
+        /// <param name="buildStatusProviders">The value for the <see cref="BuildStatusProviders"/> property.</param>
         public HueUpdaterService(
             IHostApplicationLifetime appLifetime,
             ILogger<HueUpdaterService> logger,
@@ -119,8 +119,8 @@ namespace HueUpdater.Services
             ISerializer serializer,
             IResolver<ScheduleQuery, bool> scheduleApplicabilityResolver,
             IResolver<DateTime, (string Name, TimeRangeSettings Times)> scheduleResolver,
-            IEnumerable<IActivityStatusAggregator<Task<CIActivityStatus>>> activityStatusAggregators,
-            IEnumerable<IBuildStatusAggregator<Task<CIBuildStatus>>> buildStatusAggregators
+            IEnumerable<IActivityStatusProvider<Task<CIActivityStatus>>> activityStatusProviders,
+            IEnumerable<IBuildStatusProvider<Task<CIBuildStatus>>> buildStatusProviders
         )
         {
             AppLifetime = appLifetime ?? throw new ArgumentNullException(nameof(appLifetime));
@@ -133,10 +133,10 @@ namespace HueUpdater.Services
             Serializer = serializer ?? throw new ArgumentNullException(nameof(serializer));
             ScheduleApplicabilityResolver = scheduleApplicabilityResolver ?? throw new ArgumentNullException(nameof(scheduleApplicabilityResolver));
             ScheduleResolver = scheduleResolver ?? throw new ArgumentNullException(nameof(scheduleResolver));
-            ActivityStatusAggregators = activityStatusAggregators ?? throw new ArgumentNullException(nameof(activityStatusAggregators));
-            if (!activityStatusAggregators.Any()) { throw new ArgumentOutOfRangeException(nameof(activityStatusAggregators)); }
-            BuildStatusAggregators = buildStatusAggregators ?? throw new ArgumentNullException(nameof(buildStatusAggregators));
-            if (!buildStatusAggregators.Any()) { throw new ArgumentOutOfRangeException(nameof(buildStatusAggregators)); }
+            ActivityStatusProviders = activityStatusProviders ?? throw new ArgumentNullException(nameof(activityStatusProviders));
+            if (!activityStatusProviders.Any()) { throw new ArgumentOutOfRangeException(nameof(activityStatusProviders)); }
+            BuildStatusProviders = buildStatusProviders ?? throw new ArgumentNullException(nameof(buildStatusProviders));
+            if (!buildStatusProviders.Any()) { throw new ArgumentOutOfRangeException(nameof(buildStatusProviders)); }
         }
 
 
@@ -167,8 +167,8 @@ namespace HueUpdater.Services
 
             if (isScheduleApplicable)
             {
-                var activityStatusCalls = ActivityStatusAggregators.Select(a => a.GetActivityStatus());
-                var buildStatusCalls = BuildStatusAggregators.Select(b => b.GetBuildStatus());
+                var activityStatusCalls = ActivityStatusProviders.Select(a => a.GetActivityStatus());
+                var buildStatusCalls = BuildStatusProviders.Select(b => b.GetBuildStatus());
                 var currentStatus = new CIStatus
                 {
                     ActivityStatus = ActivityStatusResolver.Resolve(await Task.WhenAll(activityStatusCalls)),

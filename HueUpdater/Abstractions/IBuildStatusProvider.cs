@@ -2,14 +2,14 @@
 {
 
     /// <summary>
-    /// Contract for services that derive a build status.
+    /// Contract for services that provide a build status.
     /// </summary>
     /// <typeparam name="TBuildStatus">The type of the build status.</typeparam>
-    public interface IBuildStatusAggregator<out TBuildStatus>
+    public interface IBuildStatusProvider<out TBuildStatus>
     {
 
         /// <summary>
-        /// Derives a build status.
+        /// Provides a build status.
         /// </summary>
         /// <returns>The requested value.</returns>
         TBuildStatus GetBuildStatus();

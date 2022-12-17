@@ -23,6 +23,7 @@ namespace HueUpdater.Services
         /// Main constructor.
         /// </summary>
         /// <param name="endpoint">The value for the <see cref="Endpoint"/> property.</param>
+        /// <exception cref="ArgumentNullException">If a required dependency is not provided.</exception>
         public HueInvoker(string endpoint)
         {
             Endpoint = endpoint ?? throw new ArgumentNullException(nameof(endpoint));

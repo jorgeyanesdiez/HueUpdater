@@ -68,8 +68,8 @@ namespace HueUpdater
 
                     // Status services DI - May eventually use an assembly scanner to make these pluggable.
                     services.AddSingleton(sp => CreateInstance<JenkinsStatusAggregator>(sp, appSettings.Jenkins.BaseEndpoint, appSettings.Jenkins.JobNameRegexFilter));
-                    services.AddSingleton<IActivityStatusAggregator<Task<CIActivityStatus>>>(sp => sp.GetRequiredService<JenkinsStatusAggregator>());
-                    services.AddSingleton<IBuildStatusAggregator<Task<CIBuildStatus>>>(sp => sp.GetRequiredService<JenkinsStatusAggregator>());
+                    services.AddSingleton<IActivityStatusProvider<Task<CIActivityStatus>>>(sp => sp.GetRequiredService<JenkinsStatusAggregator>());
+                    services.AddSingleton<IBuildStatusProvider<Task<CIBuildStatus>>>(sp => sp.GetRequiredService<JenkinsStatusAggregator>());
 
                     // Hosted service DI
                     services.AddHostedService<HueUpdaterService>();

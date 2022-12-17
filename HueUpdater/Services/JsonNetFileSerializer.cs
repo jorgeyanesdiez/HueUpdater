@@ -23,6 +23,8 @@ namespace HueUpdater.Services
         /// Main constructor.
         /// </summary>
         /// <param name="filePath">The value for the <see cref="FilePath"/> property.</param>
+        /// <exception cref="ArgumentNullException">If a required dependency is not provided.</exception>
+        /// <exception cref="ArgumentOutOfRangeException">If a required dependency is not valid.</exception>
         public JsonNetFileSerializer(string filePath)
         {
             FilePath = filePath ?? throw new ArgumentNullException(nameof(filePath));

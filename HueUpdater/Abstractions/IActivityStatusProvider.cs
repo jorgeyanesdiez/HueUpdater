@@ -2,14 +2,14 @@
 {
 
     /// <summary>
-    /// Contract for services that derive an activity status.
+    /// Contract for services that provide an activity status.
     /// </summary>
     /// <typeparam name="TActivityStatus">The type of the activity status.</typeparam>
-    public interface IActivityStatusAggregator<out TActivityStatus>
+    public interface IActivityStatusProvider<out TActivityStatus>
     {
 
         /// <summary>
-        /// Derives an activity status.
+        /// Provides an activity status.
         /// </summary>
         /// <returns>The requested value.</returns>
         TActivityStatus GetActivityStatus();

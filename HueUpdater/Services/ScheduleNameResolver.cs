@@ -23,6 +23,7 @@ namespace HueUpdater.Services
         /// Main constructor.
         /// </summary>
         /// <param name="calendar">The value for the <see cref="Calendar"/> property.</param>
+        /// <exception cref="ArgumentNullException">If a required dependency is not provided.</exception>
         public ScheduleNameResolver(CalendarSettings calendar)
         {
             Calendar = calendar ?? throw new ArgumentNullException(nameof(calendar));

@@ -30,6 +30,8 @@ namespace HueUpdater.Services
         /// </summary>
         /// <param name="scheduleNameResolver">The value for the <see cref="ScheduleNameResolver"/> property.</param>
         /// <param name="schedules">The value for the <see cref="Schedules"/> property.</param>
+        /// <exception cref="ArgumentNullException">If a required dependency is not provided.</exception>
+        /// <exception cref="ArgumentOutOfRangeException">If a required dependency is not valid.</exception>
         public ScheduleResolver(
             IResolver<DateTime, string> scheduleNameResolver,
             ScheduleSettings schedules)

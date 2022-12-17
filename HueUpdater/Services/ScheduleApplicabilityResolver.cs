@@ -24,6 +24,7 @@ namespace HueUpdater.Services
         /// Main constructor.
         /// </summary>
         /// <param name="schedules">The value for the <see cref="Schedules"/> property.</param>
+        /// <exception cref="ArgumentNullException">If a required dependency is not provided.</exception>
         public ScheduleApplicabilityResolver(ScheduleSettings schedules)
         {
             Schedules = schedules ?? throw new ArgumentNullException(nameof(schedules));
