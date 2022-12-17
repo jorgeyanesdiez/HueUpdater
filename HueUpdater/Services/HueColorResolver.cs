@@ -14,6 +14,23 @@ namespace HueUpdater.Services
         : IResolver<CIStatus, HueColor>
     {
 
+        /// <summary>
+        /// The factory to get the colors from.
+        /// </summary>
+        private HueColorFactory HueColorFactory { get; set; }
+
+
+        /// <summary>
+        /// Main constructor.
+        /// </summary>
+        /// <param name="hueColorFactory">The value for the <see cref="HueColorFactory"/> property.</param>
+        /// <exception cref="ArgumentNullException">If a required dependency is not provided.</exception>
+        public HueColorResolver(HueColorFactory hueColorFactory)
+        {
+            HueColorFactory = hueColorFactory ?? throw new ArgumentNullException(nameof(hueColorFactory));
+        }
+
+
         /// <inheritdoc/>
         public HueColor Resolve(CIStatus input)
         {

@@ -1,9 +1,11 @@
 ﻿using System;
+using System.Linq;
 using System.Threading.Tasks;
 using Flurl.Http;
 using Flurl.Http.Configuration;
 using HueUpdater.Abstractions;
 using HueUpdater.Dtos;
+using HueUpdater.Factories;
 using HueUpdater.Models;
 using HueUpdater.Services;
 using HueUpdater.Settings;
@@ -59,6 +61,7 @@ namespace HueUpdater
                     services.AddSingleton<IResolver<CIActivityStatus[], CIActivityStatus>, CIActivityStatusResolver>();
                     services.AddSingleton<IResolver<CIBuildStatus[], CIBuildStatus>, CIBuildStatusResolver>();
                     services.AddSingleton<IResolver<CIStatusChangeQuery, HueAlert>, HueAlertResolver>();
+                    services.AddSingleton(sp => CreateInstance<HueColorFactory>(sp, PickAppearancePresetSettings(appSettings)));
                     services.AddSingleton<IResolver<CIStatus, HueColor>, HueColorResolver>();
                     services.AddSingleton<IHueInvoker>(sp => CreateInstance<HueInvoker>(sp, appSettings.Hue.Endpoint));
                     services.AddSingleton<Abstractions.ISerializer>(sp => CreateInstance<JsonNetFileSerializer>(sp, appSettings.Persistence.LastStatusFilePath));
@@ -82,6 +85,20 @@ namespace HueUpdater
                     configLogging.AddConsole();
                 })
                 .UseConsoleLifetime();
+        }
+
+
+        /// <summary>
+        /// Attempts to retrieved the configured appearance preset.
+        /// </summary>
+        /// <param name="appSettings">The application configuration.</param>
+        /// <returns>The configured appearance preset settings for the endpoint, or a default if the preset cannot be resolved.</returns>
+        private static AppearancePresetSettings PickAppearancePresetSettings(AppSettings appSettings)
+        {
+            var appearancePreset = appSettings.Hue.AppearancePreset;
+            return appSettings.Appearance.ContainsKey(appearancePreset)
+                ? appSettings.Appearance[appearancePreset]
+                : appSettings.Appearance.Values.First();
         }
 
 

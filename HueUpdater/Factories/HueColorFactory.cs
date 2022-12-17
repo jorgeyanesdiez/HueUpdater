@@ -1,4 +1,6 @@
 ﻿using HueUpdater.Dtos;
+using HueUpdater.Settings;
+using System;
 
 namespace HueUpdater.Factories
 {
@@ -6,40 +8,38 @@ namespace HueUpdater.Factories
     /// <summary>
     /// Factory to create common instances of <see cref="HueColor"/>.
     /// </summary>
-    public static class HueColorFactory
+    public class HueColorFactory
     {
 
         /// <summary>
-        /// Value for a blue color hue.
+        /// The preset to get the color values from.
         /// </summary>
-        public static readonly int BlueHue = 44000;
+        private AppearancePresetSettings AppearancePresetSettings { get; }
 
 
         /// <summary>
-        /// Value for a green color hue.
+        /// Main constructor.
         /// </summary>
-        public static readonly int GreenHue = 26000;
-
-
-        /// <summary>
-        /// Value for a red color hue.
-        /// </summary>
-        public static readonly int RedHue = 65000;
-
-
-        /// <summary>
-        /// Value for a yellow color hue.
-        /// </summary>
-        public static readonly int YellowHue = 10000;
+        /// <param name="appearancePresetSettings">The value for the <see cref="AppearancePresetSettings"/> property.</param>
+        /// <exception cref="ArgumentNullException">If a required dependency is not provided.</exception>
+        public HueColorFactory(AppearancePresetSettings appearancePresetSettings)
+        {
+            AppearancePresetSettings = appearancePresetSettings ?? throw new ArgumentNullException(nameof(appearancePresetSettings));
+        }
 
 
         /// <summary>
         /// Factory method to create a blue color DTO.
         /// </summary>
         /// <returns>The requested DTO.</returns>
-        public static HueColor CreateBlue()
+        public HueColor CreateBlue()
         {
-            return new HueColor { Hue = BlueHue };
+            return new HueColor
+            {
+                Sat = AppearancePresetSettings.Sat,
+                Bri = AppearancePresetSettings.Bri,
+                Hue = AppearancePresetSettings.BlueHue
+            };
         }
 
 
@@ -47,9 +47,14 @@ namespace HueUpdater.Factories
         /// Factory method to create a green color DTO.
         /// </summary>
         /// <returns>The requested DTO.</returns>
-        public static HueColor CreateGreen()
+        public HueColor CreateGreen()
         {
-            return new HueColor { Hue = GreenHue };
+            return new HueColor
+            {
+                Sat = AppearancePresetSettings.Sat,
+                Bri = AppearancePresetSettings.Bri,
+                Hue = AppearancePresetSettings.GreenHue
+            };
         }
 
 
@@ -57,9 +62,14 @@ namespace HueUpdater.Factories
         /// Factory method to create a red color DTO.
         /// </summary>
         /// <returns>The requested DTO.</returns>
-        public static HueColor CreateRed()
+        public HueColor CreateRed()
         {
-            return new HueColor { Hue = RedHue };
+            return new HueColor
+            {
+                Sat = AppearancePresetSettings.Sat,
+                Bri = AppearancePresetSettings.Bri,
+                Hue = AppearancePresetSettings.RedHue
+            };
         }
 
 
@@ -67,9 +77,14 @@ namespace HueUpdater.Factories
         /// Factory method to create a yellow color DTO.
         /// </summary>
         /// <returns>The requested DTO.</returns>
-        public static HueColor CreateYellow()
+        public HueColor CreateYellow()
         {
-            return new HueColor { Hue = YellowHue };
+            return new HueColor
+            {
+                Sat = AppearancePresetSettings.Sat,
+                Bri = AppearancePresetSettings.Bri,
+                Hue = AppearancePresetSettings.YellowHue
+            };
         }
 
     }
