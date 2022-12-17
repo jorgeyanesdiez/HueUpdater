@@ -163,10 +163,11 @@ namespace HueUpdater.Services
             var (scheduleName, scheduleTime) = ScheduleResolver.Resolve(dateTime.Date);
             var isScheduleApplicable = ScheduleApplicabilityResolver.Resolve(new ScheduleQuery { ScheduleName = scheduleName, Time = dateTime.TimeOfDay });
             Logger.LogInformation("Schedule: {ScheduleName} | {ScheduleTimeStart} - {ScheduleTimeFinish}", scheduleName, scheduleTime.Start, scheduleTime.Finish);
-            Logger.LogInformation("Time: {Timestamp} | Schedule applicable? {ScheduleApplicable}", $"{dateTime:HH:mm}", isScheduleApplicable);
+            Logger.LogInformation("Time: {Timestamp} | Power-On schedule applicable? {ScheduleApplicable}", $"{dateTime:HH:mm}", isScheduleApplicable);
 
             if (isScheduleApplicable)
             {
+                // Get the current status
                 var activityStatusCalls = ActivityStatusProviders.Select(a => a.GetActivityStatus());
                 var buildStatusCalls = BuildStatusProviders.Select(b => b.GetBuildStatus());
                 var currentStatus = new CIStatus
@@ -174,14 +175,21 @@ namespace HueUpdater.Services
                     ActivityStatus = ActivityStatusResolver.Resolve(await Task.WhenAll(activityStatusCalls)),
                     BuildStatus = BuildStatusResolver.Resolve(await Task.WhenAll(buildStatusCalls))
                 };
+
+                // Get the previous status
                 var previousStatus = Serializer.Deserialize<CIStatus>();
+
+                // Save the current status
                 Serializer.Serialize(currentStatus);
+
+                // Get the settings for the current status
                 var hueColor = HueColorResolver.Resolve(currentStatus);
                 var hueAlert = HueAlertResolver.Resolve(new CIStatusChangeQuery { Current = currentStatus, Previous = previousStatus });
-
                 Logger.LogInformation("Status: {ActivityStatus} - {BuildStatus}", currentStatus.ActivityStatus, currentStatus.BuildStatus);
+
+                // Update the endpoint
                 await HueInvoker.PutAsync(hueColor);
-                await HueInvoker.PutAsync(hueAlert);
+                if (hueAlert != null) { await HueInvoker.PutAsync(hueAlert); }
             }
             else
             {

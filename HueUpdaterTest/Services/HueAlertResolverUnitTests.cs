@@ -33,7 +33,7 @@ namespace HueUpdater.Services
         {
             var sut = new HueAlertResolver();
             var result = sut.Resolve(new CIStatusChangeQuery { Current = status, Previous = status });
-            result.Alert.Should().Be(HueAlertFactory.None);
+            result.Should().BeNull();
         }
 
 
