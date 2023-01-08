@@ -65,8 +65,11 @@ Here's an attempt to explain each one, although I hope most are self explanatory
 * **Persistence** -> ***LastStatusFilePath***
 
   *HueUpdater* keeps track of the last status of the lamp by writing it to a file. This property determines the location of that file.
+  
   It can be a full or relative path. At least a file name must be specified. The default value may be used, but it assumes the user that runs the application has write permissions on the folder that contains the application.
-  If you plan on using [![TrayIcon](https://github.com/jorgeyanesdiez/TrayIcon), set this value to a path and file served by a web server.
+  
+  If you plan on using [TrayIcon](https://github.com/jorgeyanesdiez/TrayIcon), set this value to a path and file served by a web server.
+  
   If you use *HueUpdater* on the same server as your Jenkins instance, the easiest way is to write this to *userContent/last-status.json* under your Jenkins home.
 
 
@@ -74,6 +77,7 @@ Here's an attempt to explain each one, although I hope most are self explanatory
 * **Hue** -> ***Endpoint***
 
   API endpoint of the light to control.
+  
   You will know the IP and API key once you've completed your Hue API setup.
 
   Example: `http://192.168.0.1/api/0123456789012345678901234567890123456789/lights/1/state`
@@ -91,6 +95,7 @@ Here's an attempt to explain each one, although I hope most are self explanatory
 * **Jenkins** -> ***JobNameRegexFilter***
 
   Sometimes it's desirable to ignore the failure of some jobs without creating a view in Jenkins.
+  
   This optional regular expression acts as a job name filter. May be left empty.
 
   Example: `Project abc`
@@ -100,6 +105,7 @@ Here's an attempt to explain each one, although I hope most are self explanatory
 * **Jenkins** -> ***User***
 
   If your Jenkins instance is password protected, set this to your username.
+  
   The user name to authenticate requests to Jenkins with.
 
 
@@ -107,6 +113,7 @@ Here's an attempt to explain each one, although I hope most are self explanatory
 * **Jenkins** -> ***Password***
 
   If your Jenkins instance is password protected, set this to your password.
+  
   The password to authenticate requests to Jenkins with.
 
 
@@ -114,6 +121,7 @@ Here's an attempt to explain each one, although I hope most are self explanatory
 
 
 You will likely want to customize when the lamp turns on and off.
+
 The calendar and schedules allow you to do so, and should be modified to match your needs.
 
 * The section **Operation** -> **Schedules** defines time intervals of each day during which the light is on.
