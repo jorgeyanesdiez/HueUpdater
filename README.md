@@ -1,7 +1,7 @@
 
 # Hue Updater
 
-Updates the color of a Hue light based on the status of multiple CI projects.
+Updates the color of a Philips Hue API compatible light based on the status of multiple projects.
 
 ![Stable, Stable & Building, Broken, Broken & Building](https://i.imgur.com/YuEo7Ak.jpg)
 Stable | Stable & Building | Broken | Broken & Building
@@ -24,7 +24,7 @@ Sonarcloud status:  [![Sonarcloud status](https://sonarcloud.io/api/project_badg
 
 ## Motivation
 
-I use a lamp on my desk at work to give me feedback about the status of multiple CI projects.
+I use a lamp at work to give our team instant feedback about the status of multiple projects tracked by our CI system.
 
 This application manages that lamp.
 
@@ -39,15 +39,15 @@ Depending on a defined schedule and a calendar, it then turns the lamp on/off, a
 
 ## Usage prerequisites
 
-* Hue hub, lights, CI systems and all networking must have been already set up and in working order.
+* Operational Hue hub, Hue lights, CI systems and related networking equipment.
 
 * An API key to control the Hue light.
 
-* User credentials for the Jenkins instance.
+* Basic JSON knowledge to edit the settings file.
 
-* The user that runs the application must have write permissions on the location where the last status file is written.
+* Write permission on a local folder to save the file that keeps track of the lamp's last status.
 
-
+* User credentials for the Jenkins instance, when the Jenkins instance is password protected.
 
 
 
@@ -56,20 +56,25 @@ Depending on a defined schedule and a calendar, it then turns the lamp on/off, a
 
 ## Deployment
 
-Unpack the release file where desired.
-Open the *appsettings.json* file with a plain text editor and tweak the values as needed:
+Unpack the release file wherever you want on the target system. I suggest *C:\HueUpdater*
+Open the *appsettings.json* file with a plain text editor and carefully tweak the values to match your needs.
+Here's an attempt to explain each one, although I hope most are self explanatory from the provided sample file.
 
 
 
 * **Persistence** -> ***LastStatusFilePath***
 
-  Full or relative path to a file to be used to keep track of the last build status. At least a file name must be specified. The default value may be used, but it assumes the user that runs the application has write permissions on the folder that contains the application.
+  *HueUpdater* keeps track of the last status of the lamp by writing it to a file. This property determines the location of that file.
+  It can be a full or relative path. At least a file name must be specified. The default value may be used, but it assumes the user that runs the application has write permissions on the folder that contains the application.
+  If you plan on using [![TrayIcon](https://github.com/jorgeyanesdiez/TrayIcon), set this value to a path and file served by a web server.
+  If you use *HueUpdater* on the same server as your Jenkins instance, the easiest way is to write this to *userContent/last-status.json* under your Jenkins home.
 
 
 
 * **Hue** -> ***Endpoint***
 
   API endpoint of the light to control.
+  You will know the IP and API key once you've completed your Hue API setup.
 
   Example: `http://192.168.0.1/api/0123456789012345678901234567890123456789/lights/1/state`
 
@@ -77,15 +82,16 @@ Open the *appsettings.json* file with a plain text editor and tweak the values a
 
 * **Jenkins** -> ***BaseEndpoint***
 
-  Base of the Jenkins instance.
+  Base URL of your Jenkins instance.
 
-  Example: `http://jenkins-server.mycompany.com`
+  Example: `https://jenkins-server.mycompany.com`
 
 
 
 * **Jenkins** -> ***JobNameRegexFilter***
 
-  Optional regex to filter jobs by name. May be left empty.
+  Sometimes it's desirable to ignore the failure of some jobs without creating a view in Jenkins.
+  This optional regular expression acts as a job name filter. May be left empty.
 
   Example: `Project abc`
 
@@ -93,19 +99,22 @@ Open the *appsettings.json* file with a plain text editor and tweak the values a
 
 * **Jenkins** -> ***User***
 
+  If your Jenkins instance is password protected, set this to your username.
   The user name to authenticate requests to Jenkins with.
 
 
 
 * **Jenkins** -> ***Password***
 
+  If your Jenkins instance is password protected, set this to your password.
   The password to authenticate requests to Jenkins with.
 
 
 
 
 
-The calendar and schedules should be modified to your needs too.
+You will likely want to customize when the lamp turns on and off.
+The calendar and schedules allow you to do so, and should be modified to match your needs.
 
 * The section **Operation** -> **Schedules** defines time intervals of each day during which the light is on.
 
@@ -164,15 +173,15 @@ The calendar and schedules should be modified to your needs too.
 
 
 
-* The *appsettings.json* file must remain valid at all times. Use valid JSON only.
+* **REMEMBER:** The *appsettings.json* file must remain valid at all times. Use valid JSON only.
 
 
 
 
 
-Once done, schedule a task to run this application frequently.
+Finally, use your Windows Task Scheduler or alternative scheduling method to run this application frequently.
 
-I use Windows' Task Scheduler to run this every minute or so.
+I usually run it every minute.
 
 That's all there is to it.
 
@@ -184,13 +193,3 @@ That's all there is to it.
 ## License
 
 This project is licensed under the MIT License - see the [LICENSE.md](LICENSE.md) file for details
-
-
-
-
-
-
-## Future plans
-
-* Make the providers pluggable.
-* Allow more than one time interval per schedule.
