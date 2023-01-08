@@ -462,19 +462,19 @@ namespace HueUpdater.Services
 
             await sut.UpdateHueEndpointAsync();
 
-            activityStatusResolverMock.Verify(m => m.Resolve(It.IsAny<CIActivityStatus[]>()), Times.Never);
-            buildStatusResolverMock.Verify(m => m.Resolve(It.IsAny<CIBuildStatus[]>()), Times.Never);
+            activityStatusResolverMock.Verify(m => m.Resolve(It.IsAny<CIActivityStatus[]>()), Times.Once);
+            buildStatusResolverMock.Verify(m => m.Resolve(It.IsAny<CIBuildStatus[]>()), Times.Once);
             hueAlertResolverMock.Verify(m => m.Resolve(It.IsAny<CIStatusChangeQuery>()), Times.Never);
             hueColorResolverMock.Verify(m => m.Resolve(It.IsAny<CIStatus>()), Times.Never);
             hueInvokerMock.Verify(m => m.PutAsync(It.IsAny<HueColor>()), Times.Never);
             hueInvokerMock.Verify(m => m.PutAsync(It.IsAny<HueAlert>()), Times.Never);
             hueInvokerMock.Verify(m => m.PutAsync(It.IsAny<HuePower>()), Times.Once);
-            serializerMock.Verify(m => m.Deserialize<CIStatus>(), Times.Never);
-            serializerMock.Verify(m => m.Serialize(It.IsAny<CIStatus>()), Times.Never);
+            serializerMock.Verify(m => m.Deserialize<CIStatus>(), Times.Once);
+            serializerMock.Verify(m => m.Serialize(It.IsAny<CIStatus>()), Times.Once);
             scheduleApplicabilityResolverMock.Verify(m => m.Resolve(It.IsAny<ScheduleQuery>()), Times.Once);
             scheduleResolverMock.Verify(m => m.Resolve(It.IsAny<DateTime>()), Times.Once);
-            activityStatusProviderMock.Verify(m => m.GetActivityStatus(), Times.Never);
-            buildStatusProviderMock.Verify(m => m.GetBuildStatus(), Times.Never);
+            activityStatusProviderMock.Verify(m => m.GetActivityStatus(), Times.Once);
+            buildStatusProviderMock.Verify(m => m.GetBuildStatus(), Times.Once);
         }
 
     }

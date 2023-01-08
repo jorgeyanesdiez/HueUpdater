@@ -165,23 +165,23 @@ namespace HueUpdater.Services
             Logger.LogInformation("Schedule: {ScheduleName} | {ScheduleTimeStart} - {ScheduleTimeFinish}", scheduleName, scheduleTime.Start, scheduleTime.Finish);
             Logger.LogInformation("Time: {Timestamp} | Power-On schedule applicable? {ScheduleApplicable}", $"{dateTime:HH:mm}", isScheduleApplicable);
 
+            // Get the current status
+            var activityStatusCalls = ActivityStatusProviders.Select(a => a.GetActivityStatus());
+            var buildStatusCalls = BuildStatusProviders.Select(b => b.GetBuildStatus());
+            var currentStatus = new CIStatus
+            {
+                ActivityStatus = ActivityStatusResolver.Resolve(await Task.WhenAll(activityStatusCalls)),
+                BuildStatus = BuildStatusResolver.Resolve(await Task.WhenAll(buildStatusCalls))
+            };
+
+            // Get the previous status
+            var previousStatus = Serializer.Deserialize<CIStatus>();
+
+            // Save the current status
+            Serializer.Serialize(currentStatus);
+
             if (isScheduleApplicable)
             {
-                // Get the current status
-                var activityStatusCalls = ActivityStatusProviders.Select(a => a.GetActivityStatus());
-                var buildStatusCalls = BuildStatusProviders.Select(b => b.GetBuildStatus());
-                var currentStatus = new CIStatus
-                {
-                    ActivityStatus = ActivityStatusResolver.Resolve(await Task.WhenAll(activityStatusCalls)),
-                    BuildStatus = BuildStatusResolver.Resolve(await Task.WhenAll(buildStatusCalls))
-                };
-
-                // Get the previous status
-                var previousStatus = Serializer.Deserialize<CIStatus>();
-
-                // Save the current status
-                Serializer.Serialize(currentStatus);
-
                 // Get the settings for the current status
                 var hueColor = HueColorResolver.Resolve(currentStatus);
                 var hueAlert = HueAlertResolver.Resolve(new CIStatusChangeQuery { Current = currentStatus, Previous = previousStatus });
