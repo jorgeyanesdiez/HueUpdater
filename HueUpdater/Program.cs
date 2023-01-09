@@ -61,7 +61,7 @@ namespace HueUpdater
                     services.AddSingleton<IResolver<CIActivityStatus[], CIActivityStatus>, CIActivityStatusResolver>();
                     services.AddSingleton<IResolver<CIBuildStatus[], CIBuildStatus>, CIBuildStatusResolver>();
                     services.AddSingleton<IResolver<CIStatusChangeQuery, HueAlert>, HueAlertResolver>();
-                    services.AddSingleton(sp => CreateInstance<HueColorFactory>(sp, PickAppearancePresetSettings(appSettings)));
+                    services.AddSingleton<IHueColorFactory>(sp => CreateInstance<HueColorFactory>(sp, PickAppearancePresetSettings(appSettings)));
                     services.AddSingleton<IResolver<CIStatus, HueColor>, HueColorResolver>();
                     services.AddSingleton<IHueInvoker>(sp => CreateInstance<HueInvoker>(sp, appSettings.Hue.Endpoint));
                     services.AddSingleton<Abstractions.ISerializer>(sp => CreateInstance<JsonNetFileSerializer>(sp, appSettings.Persistence.LastStatusFilePath));

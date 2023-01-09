@@ -6,9 +6,9 @@ namespace HueUpdater.Factories
 {
 
     /// <summary>
-    /// Factory to create common instances of <see cref="HueColor"/>.
+    /// Default implementation of <see cref="IHueColorFactory"/>.
     /// </summary>
-    public class HueColorFactory
+    public class HueColorFactory : IHueColorFactory
     {
 
         /// <summary>
@@ -28,10 +28,7 @@ namespace HueUpdater.Factories
         }
 
 
-        /// <summary>
-        /// Factory method to create a blue color DTO.
-        /// </summary>
-        /// <returns>The requested DTO.</returns>
+        /// <inheritdoc/>
         public HueColor CreateBlue()
         {
             return new HueColor
@@ -43,10 +40,7 @@ namespace HueUpdater.Factories
         }
 
 
-        /// <summary>
-        /// Factory method to create a green color DTO.
-        /// </summary>
-        /// <returns>The requested DTO.</returns>
+        /// <inheritdoc/>
         public HueColor CreateGreen()
         {
             return new HueColor
@@ -58,10 +52,7 @@ namespace HueUpdater.Factories
         }
 
 
-        /// <summary>
-        /// Factory method to create a red color DTO.
-        /// </summary>
-        /// <returns>The requested DTO.</returns>
+        /// <inheritdoc/>
         public HueColor CreateRed()
         {
             return new HueColor
@@ -73,10 +64,7 @@ namespace HueUpdater.Factories
         }
 
 
-        /// <summary>
-        /// Factory method to create a yellow color DTO.
-        /// </summary>
-        /// <returns>The requested DTO.</returns>
+        /// <inheritdoc/>
         public HueColor CreateYellow()
         {
             return new HueColor

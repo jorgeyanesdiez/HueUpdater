@@ -17,7 +17,7 @@ namespace HueUpdater.Services
         /// <summary>
         /// The factory to get the colors from.
         /// </summary>
-        private HueColorFactory HueColorFactory { get; set; }
+        private IHueColorFactory HueColorFactory { get; set; }
 
 
         /// <summary>
@@ -25,7 +25,7 @@ namespace HueUpdater.Services
         /// </summary>
         /// <param name="hueColorFactory">The value for the <see cref="HueColorFactory"/> property.</param>
         /// <exception cref="ArgumentNullException">If a required dependency is not provided.</exception>
-        public HueColorResolver(HueColorFactory hueColorFactory)
+        public HueColorResolver(IHueColorFactory hueColorFactory)
         {
             HueColorFactory = hueColorFactory ?? throw new ArgumentNullException(nameof(hueColorFactory));
         }
