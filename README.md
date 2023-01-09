@@ -15,8 +15,6 @@ Stable | Stable & Building | Broken | Broken & Building
 
 AppVeyor status:  [![AppVeyor status](https://ci.appveyor.com/api/projects/status/9xebpi3ve7ujf2vb/branch/main?svg=true)](https://ci.appveyor.com/project/jorgeyanesdiez/HueUpdater)
 
-Sonarcloud status:  [![Sonarcloud status](https://sonarcloud.io/api/project_badges/measure?project=jorgeyanesdiez_HueUpdater&metric=alert_status)](https://sonarcloud.io/dashboard?id=jorgeyanesdiez_HueUpdater)
-
 
 
 
