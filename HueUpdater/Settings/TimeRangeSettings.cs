@@ -9,7 +9,7 @@ namespace HueUpdater.Settings
     public class TimeRangeSettings
     {
         public TimeSpan StartTime { get; private set; } = TimeSpan.MinValue;
-        public TimeSpan FinishTime { get; private set; } = TimeSpan.MaxValue;
+        public TimeSpan FinishTime { get; private set; } = TimeSpan.MinValue;
 
         private string _start;
         public string Start

@@ -9,7 +9,7 @@ namespace HueUpdater.Settings
     public class DateRangeSettings
     {
         public DateTime StartDate { get; private set; } = DateTime.MinValue.Date;
-        public DateTime FinishDate { get; private set; } = DateTime.MaxValue.Date;
+        public DateTime FinishDate { get; private set; } = DateTime.MinValue.Date;
 
         private string _start;
         public string Start
