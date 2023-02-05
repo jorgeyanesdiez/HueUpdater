@@ -41,7 +41,7 @@ Based on a defined schedule and a calendar, the program turns the lamps on/off a
 
 * An API key to control the Hue lights.
 
-* Basic JSON and Regex knowledge to edit the settings file.
+* Basic JSON knowledge to edit the settings file.
 
 * Write permission on a local folder to save the file that keeps track of the lamps' last status.
 
