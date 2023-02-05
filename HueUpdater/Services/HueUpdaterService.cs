@@ -168,7 +168,7 @@ namespace HueUpdater.Services
             Logger.LogInformation("Light Status: {Power} - {Color}", currentStatus.Power, currentStatus.Color?.ToString() ?? "No color");
 
             var hueAlert = HueAlertResolver.Resolve(new LightStatusChangeQuery { Previous = previousStatus, Current = currentStatus });
-            Logger.LogInformation("Alerting?: {Alert}", hueAlert != null);
+            Logger.LogInformation("Alerting?: {Alert}", currentStatus.Color.HasValue && hueAlert != null);
 
             await Task.WhenAll(HueUpdaterItems.Select(async item => await ProcessItemAsync(currentStatus, item.HueColorFactory, hueAlert, item.HueInvoker)));
         }
