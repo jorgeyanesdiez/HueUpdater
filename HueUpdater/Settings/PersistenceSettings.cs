@@ -2,11 +2,11 @@
 {
 
     /// <summary>
-    /// Settings for persistence services.
+    /// Settings for persistence operations.
     /// </summary>
     public class PersistenceSettings
     {
-        public string LastStatusFilePath { get; set; }
+        public string LightStatusFilePath { get; set; }
     }
 
 }

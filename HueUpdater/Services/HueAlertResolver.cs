@@ -10,11 +10,11 @@ namespace HueUpdater.Services
     /// Resolves the alert that corresponds to the status of a CI system.
     /// </summary>
     public class HueAlertResolver
-        : IResolver<CIStatusChangeQuery, HueAlert>
+        : IResolver<LightStatusChangeQuery, HueAlert>
     {
 
         /// <inheritdoc/>
-        public HueAlert Resolve(CIStatusChangeQuery input)
+        public HueAlert Resolve(LightStatusChangeQuery input)
         {
             var isEqual = input?.Current?.Equals(input?.Previous) ?? false;
             var alert = !isEqual

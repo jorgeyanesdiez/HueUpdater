@@ -10,7 +10,7 @@ namespace HueUpdater.Abstractions
     {
 
         /// <summary>
-        /// Invokes a PUT method of the Hue API.
+        /// Invokes the Hue API using a PUT method.
         /// </summary>
         /// <typeparam name="TContent">The type of the body of the message.</typeparam>
         /// <param name="content">The body of the message.</param>

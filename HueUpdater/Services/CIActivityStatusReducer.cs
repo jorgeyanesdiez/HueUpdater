@@ -1,14 +1,14 @@
 ﻿using System.Linq;
 using HueUpdater.Abstractions;
-using HueUpdater.Models;
+using HueUpdater.Dtos;
 
 namespace HueUpdater.Services
 {
 
     /// <summary>
-    /// Resolves an activity status from multiple values.
+    /// Resolves a <see cref="CIActivityStatus"/> from multiple values.
     /// </summary>
-    public class CIActivityStatusResolver
+    public class CIActivityStatusReducer
         : IResolver<CIActivityStatus[], CIActivityStatus>
     {
 

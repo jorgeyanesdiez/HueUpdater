@@ -1,78 +1,54 @@
-﻿using HueUpdater.Dtos;
+﻿using System;
+using HueUpdater.Abstractions;
+using HueUpdater.Dtos;
+using HueUpdater.Models;
 using HueUpdater.Settings;
-using System;
 
 namespace HueUpdater.Factories
 {
 
     /// <summary>
-    /// Default implementation of <see cref="IHueColorFactory"/>.
+    /// Factory to create common instances of <see cref="HueColor"/> from a <see cref="LightColor"/>.
     /// </summary>
-    public class HueColorFactory : IHueColorFactory
+    public class HueColorFactory
+        : IResolver<LightColor, HueColor>
     {
 
         /// <summary>
         /// The preset to get the color values from.
         /// </summary>
-        private AppearancePresetSettings AppearancePresetSettings { get; }
+        private AppearancePresetSettings AppearancePreset { get; }
 
 
         /// <summary>
         /// Main constructor.
         /// </summary>
-        /// <param name="appearancePresetSettings">The value for the <see cref="AppearancePresetSettings"/> property.</param>
+        /// <param name="appearancePreset">The value for the <see cref="AppearancePreset"/> property.</param>
         /// <exception cref="ArgumentNullException">If a required dependency is not provided.</exception>
-        public HueColorFactory(AppearancePresetSettings appearancePresetSettings)
+        public HueColorFactory(AppearancePresetSettings appearancePreset)
         {
-            AppearancePresetSettings = appearancePresetSettings ?? throw new ArgumentNullException(nameof(appearancePresetSettings));
+            AppearancePreset = appearancePreset ?? throw new ArgumentNullException(nameof(appearancePreset));
         }
 
 
         /// <inheritdoc/>
-        public HueColor CreateBlue()
+        /// <exception cref="NotSupportedException">If the provided argument is not supported.</exception>
+        public HueColor Resolve(LightColor input)
         {
-            return new HueColor
+            var result = new HueColor
             {
-                Sat = AppearancePresetSettings.Sat,
-                Bri = AppearancePresetSettings.Bri,
-                Hue = AppearancePresetSettings.BlueHue
+                Sat = AppearancePreset.Sat,
+                Bri = AppearancePreset.Bri,
+                Hue = input switch
+                {
+                    LightColor.Green => AppearancePreset.GreenHue,
+                    LightColor.Blue => AppearancePreset.BlueHue,
+                    LightColor.Red => AppearancePreset.RedHue,
+                    LightColor.Yellow => AppearancePreset.YellowHue,
+                    _ => throw new NotSupportedException(nameof(input))
+                }
             };
-        }
-
-
-        /// <inheritdoc/>
-        public HueColor CreateGreen()
-        {
-            return new HueColor
-            {
-                Sat = AppearancePresetSettings.Sat,
-                Bri = AppearancePresetSettings.Bri,
-                Hue = AppearancePresetSettings.GreenHue
-            };
-        }
-
-
-        /// <inheritdoc/>
-        public HueColor CreateRed()
-        {
-            return new HueColor
-            {
-                Sat = AppearancePresetSettings.Sat,
-                Bri = AppearancePresetSettings.Bri,
-                Hue = AppearancePresetSettings.RedHue
-            };
-        }
-
-
-        /// <inheritdoc/>
-        public HueColor CreateYellow()
-        {
-            return new HueColor
-            {
-                Sat = AppearancePresetSettings.Sat,
-                Bri = AppearancePresetSettings.Bri,
-                Hue = AppearancePresetSettings.YellowHue
-            };
+            return result;
         }
 
     }

@@ -1,24 +1,25 @@
 ﻿using System;
+using HueUpdater.Settings;
 
 namespace HueUpdater.Models
 {
 
     /// <summary>
-    /// Model to query whether a timespan happens within a schedule.
+    /// Query to determine whether a time happens within schedule.
     /// </summary>
     public class ScheduleQuery
     {
 
         /// <summary>
-        /// The name of the schedule to query.
+        /// The time to be checked against the schedule.
         /// </summary>
-        public string ScheduleName { get; set; }
+        public TimeSpan Time { get; set; }
 
 
         /// <summary>
-        /// The timespan to be checked against the schedule.
+        /// The schedule to check against.
         /// </summary>
-        public TimeSpan Time { get; set; }
+        public ScheduleSettings Schedule { get; set; }
 
     }
 

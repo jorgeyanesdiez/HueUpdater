@@ -9,8 +9,9 @@ namespace HueUpdater.Services
     /// <summary>
     /// File serializer using Json.Net
     /// </summary>
-    public class JsonNetFileSerializer
-        : ISerializer
+    public class JsonNetFileSerializer<TObject>
+        : ISerializer<TObject>
+          where TObject : new()
     {
 
         /// <summary>
@@ -33,16 +34,16 @@ namespace HueUpdater.Services
 
 
         /// <inheritdoc/>
-        public TOutput Deserialize<TOutput>() where TOutput : new()
+        public TObject Deserialize()
         {
-            TOutput result;
+            TObject result;
             try
             {
                 using var reader = new StreamReader(FilePath);
                 var contents = reader.ReadToEnd();
-                result = JsonConvert.DeserializeObject<TOutput>(contents);
+                result = JsonConvert.DeserializeObject<TObject>(contents);
             }
-            catch(Exception e) when (e is FileNotFoundException || e is JsonReaderException)
+            catch (Exception e) when (e is FileNotFoundException || e is JsonReaderException)
             {
                 result = default;
             }
@@ -51,7 +52,7 @@ namespace HueUpdater.Services
 
 
         /// <inheritdoc/>
-        public void Serialize<TInput>(TInput input) where TInput : new()
+        public void Serialize(TObject input)
         {
             var contents = JsonConvert.SerializeObject(input);
             using var writer = new StreamWriter(FilePath);

@@ -1,8 +1,8 @@
-﻿namespace HueUpdater.Models
+﻿namespace HueUpdater.Dtos
 {
 
     /// <summary>
-    /// Possible states for the activity status in CI systems.
+    /// Possible values for <see cref="CIStatus.ActivityStatus"/>.
     /// </summary>
     public enum CIActivityStatus
     {

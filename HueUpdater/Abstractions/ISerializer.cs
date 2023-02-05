@@ -4,23 +4,23 @@
     /// <summary>
     /// Contract for serialization services.
     /// </summary>
-    public interface ISerializer
+    /// <typeparam name="TObject">The type of the object to work with.</typeparam>
+    public interface ISerializer<TObject>
+        where TObject : new()
     {
 
         /// <summary>
         /// Reads a previously serialized object.
         /// </summary>
-        /// <typeparam name="TOutput">The type of the object to read.</typeparam>
-        /// <returns>The deserialized instance.</returns>
-        TOutput Deserialize<TOutput>() where TOutput : new();
+        /// <returns>The deserialized object.</returns>
+        TObject Deserialize();
 
 
         /// <summary>
-        /// Writes the given instance.
+        /// Writes the given object.
         /// </summary>
-        /// <typeparam name="TInput">The type of the object to write.</typeparam>
-        /// <param name="input">The instance to write.</param>
-        void Serialize<TInput>(TInput input) where TInput : new();
+        /// <param name="input">The object to write.</param>
+        void Serialize(TObject input);
 
     }
 

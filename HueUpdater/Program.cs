@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Flurl.Http;
@@ -55,30 +56,40 @@ namespace HueUpdater
                 })
                 .ConfigureServices((hostContext, services) =>
                 {
-                    var appSettings = hostContext.Configuration.Get<AppSettings>();
+                    var appSettings = hostContext.Configuration.Get<AppSettings>().HueUpdater;
 
-                    // Application services DI
-                    services.AddSingleton<IResolver<CIActivityStatus[], CIActivityStatus>, CIActivityStatusResolver>();
-                    services.AddSingleton<IResolver<CIBuildStatus[], CIBuildStatus>, CIBuildStatusResolver>();
-                    services.AddSingleton<IResolver<CIStatusChangeQuery, HueAlert>, HueAlertResolver>();
-                    services.AddSingleton<IHueColorFactory>(sp => CreateInstance<HueColorFactory>(sp, PickAppearancePresetSettings(appSettings)));
-                    services.AddSingleton<IResolver<CIStatus, HueColor>, HueColorResolver>();
-                    services.AddSingleton<IHueInvoker>(sp => CreateInstance<HueInvoker>(sp, appSettings.Hue.Endpoint));
-                    services.AddSingleton<Abstractions.ISerializer>(sp => CreateInstance<JsonNetFileSerializer>(sp, appSettings.Persistence.LastStatusFilePath));
-                    services.AddSingleton<IResolver<ScheduleQuery, bool>>(sp => CreateInstance<ScheduleApplicabilityResolver>(sp, appSettings.Operation.Schedules));
-                    services.AddSingleton<IResolver<DateTime, string>>(sp => CreateInstance<ScheduleNameResolver>(sp, appSettings.Operation.Calendar));
-                    services.AddSingleton<IResolver<DateTime, (string Name, TimeRangeSettings Times)>>(sp => CreateInstance<ScheduleResolver>(sp, appSettings.Operation.Schedules));
+                    services.AddSingleton(sp => appSettings.StatusUrls);
+                    services.AddSingleton<IResolver<CIActivityStatus[], CIActivityStatus>, CIActivityStatusReducer>();
+                    services.AddSingleton<IResolver<CIBuildStatus[], CIBuildStatus>, CIBuildStatusReducer>();
+                    services.AddSingleton<IResolver<CIStatus[], CIStatus>, CIStatusReducer>();
 
-                    // Status services DI - May eventually use an assembly scanner to make these pluggable.
-                    services.AddSingleton(sp => CreateInstance<JenkinsStatusAggregator>(sp, appSettings.Jenkins.BaseEndpoint, appSettings.Jenkins.JobNameRegexFilter));
-                    services.AddSingleton<IActivityStatusProvider<Task<CIActivityStatus>>>(sp => sp.GetRequiredService<JenkinsStatusAggregator>());
-                    services.AddSingleton<IBuildStatusProvider<Task<CIBuildStatus>>>(sp => sp.GetRequiredService<JenkinsStatusAggregator>());
+                    services.AddSingleton<IResolver<LightStatusChangeQuery, HueAlert>, HueAlertResolver>();
+                    services.AddSingleton<ISerializer<LightStatus>>(sp => CreateInstance<JsonNetFileSerializer<LightStatus>>(sp, appSettings.Persistence.LightStatusFilePath));
+                    services.AddSingleton<IResolver<CIStatus, LightColor>, LightColorResolver>();
 
-                    // Hosted service DI
+                    services.AddSingleton(sp =>
+                    {
+                        var hueColorFactories = new Dictionary<string, IResolver<LightColor, HueColor>>();
+                        appSettings.AppearancePresets.ToList().ForEach(ap => hueColorFactories.Add(ap.Key, CreateInstance<HueColorFactory>(sp, ap.Value)));
+                        return hueColorFactories;
+                    });
+
+                    services.AddSingleton(sp => appSettings.HueLights.Select(hl =>
+                    {
+                        var hueColorFactories = sp.GetRequiredService<Dictionary<string, IResolver<LightColor, HueColor>>>();
+                        var hueColorFactory = hueColorFactories.ContainsKey(hl.AppearancePreset) ? hueColorFactories[hl.AppearancePreset] : hueColorFactories.Values.First();
+                        return new HueUpdaterItem(CreateInstance<HueInvoker>(sp, hl.Endpoint), hueColorFactory);
+                    }));
+
+                    services.AddSingleton<IResolver<ScheduleQuery, bool>, ScheduleApplicabilityResolver>();
+                    services.AddSingleton<IResolver<DateTime, string>>(sp => CreateInstance<ScheduleNameByCalendarResolver>(sp, appSettings.WorkPlan.Calendar));
+                    services.AddSingleton<IResolver<DateTime, string>>(sp => CreateInstance<ScheduleNameByOverridesResolver>(sp, appSettings.WorkPlan.Overrides));
+                    services.AddSingleton<IResolver<string[], string>>(sp => CreateInstance<ScheduleNameResolver>(sp, appSettings.WorkPlan.Schedules));
+                    services.AddSingleton<IResolver<DateTime, (string ScheduleName, ScheduleSettings Schedule)>>(sp => CreateInstance<ScheduleResolver>(sp, appSettings.WorkPlan.Schedules));
+
                     services.AddHostedService<HueUpdaterService>();
 
-                    // Application services configuration
-                    ConfigureAppServices(appSettings.Jenkins);
+                    ConfigureAppServices();
                 })
                 .ConfigureLogging((hostContext, configLogging) =>
                 {
@@ -89,35 +100,12 @@ namespace HueUpdater
 
 
         /// <summary>
-        /// Attempts to retrieved the configured appearance preset.
-        /// </summary>
-        /// <param name="appSettings">The application configuration.</param>
-        /// <returns>The configured appearance preset settings for the endpoint, or a default if the preset cannot be resolved.</returns>
-        private static AppearancePresetSettings PickAppearancePresetSettings(AppSettings appSettings)
-        {
-            var appearancePreset = appSettings.Hue.AppearancePreset;
-            return appSettings.Appearance.ContainsKey(appearancePreset)
-                ? appSettings.Appearance[appearancePreset]
-                : appSettings.Appearance.Values.First();
-        }
-
-
-        /// <summary>
         /// Configures the application services that require configuration.
         /// </summary>
-        /// <param name="jenkinsSettings">The settings required to configure Jenkins requests.</param>
-        private static void ConfigureAppServices(JenkinsSettings jenkinsSettings)
+        private static void ConfigureAppServices()
         {
             var jsonSettings = new JsonSerializerSettings { ContractResolver = new CamelCasePropertyNamesContractResolver() };
             FlurlHttp.Configure(s => s.JsonSerializer = new NewtonsoftJsonSerializer(jsonSettings));
-
-            if (!string.IsNullOrWhiteSpace(jenkinsSettings.User) || !string.IsNullOrWhiteSpace(jenkinsSettings.Password))
-            {
-                FlurlHttp.ConfigureClient(jenkinsSettings.BaseEndpoint, cl =>
-                    cl.WithBasicAuth(jenkinsSettings.User, jenkinsSettings.Password)
-                );
-            }
-            jenkinsSettings.Password = null;
         }
 
     }

@@ -13,8 +13,8 @@ namespace HueUpdater.Services
         public void Deserialize_NonExisting_IsExpected()
         {
             var filePath = "NonExistingFile";
-            var sut = new JsonNetFileSerializer(filePath);
-            var result = sut.Deserialize<SerializationExample>();
+            var sut = new JsonNetFileSerializer<SerializationExample>(filePath);
+            var result = sut.Deserialize();
             result.Should().BeNull();
         }
 
@@ -23,20 +23,20 @@ namespace HueUpdater.Services
         public void Deserialize_SerializationExample_IsExpected()
         {
             var filePath = "SerializationExample.input.json";
-            var sut = new JsonNetFileSerializer(filePath);
+            var sut = new JsonNetFileSerializer<SerializationExample>(filePath);
             var expected = new SerializationExample();
-            var result = sut.Deserialize<SerializationExample>();
+            var result = sut.Deserialize();
             result.Should().BeEquivalentTo(expected);
         }
 
 
         [Fact]
-        public void Serialize_SerializationExample_CreatesExpectedFile()
+        public void Serialize_SerializationExample_CreatesExpected()
         {
             var filePath = "SerializationExample.output.json";
             File.Delete(filePath);
             File.Exists(filePath).Should().BeFalse();
-            var sut = new JsonNetFileSerializer(filePath);
+            var sut = new JsonNetFileSerializer<SerializationExample>(filePath);
             sut.Serialize(new SerializationExample());
             File.Exists(filePath).Should().BeTrue();
         }

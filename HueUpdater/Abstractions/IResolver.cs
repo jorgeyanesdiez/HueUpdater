@@ -2,7 +2,7 @@
 {
 
     /// <summary>
-    /// Contract for value resolvers.
+    /// Contract for services that resolve values.
     /// </summary>
     /// <typeparam name="TInput">The type of the input supported.</typeparam>
     /// <typeparam name="TResult">The type of the resolved result.</typeparam>

@@ -13,11 +13,11 @@ namespace HueUpdater.Services
 
 
         [Fact]
-        public async Task PutAsync_Anything_CallsExpected()
+        public async Task PutAsync_CallsExpected()
         {
             using var httpTest = new HttpTest();
             var sut = new HueInvoker(url);
-            var result = await sut.PutAsync(new object());
+            await sut.PutAsync(new object());
             httpTest.ShouldHaveCalled(url);
         }
 

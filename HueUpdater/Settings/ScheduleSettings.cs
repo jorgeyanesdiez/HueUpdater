@@ -1,14 +1,13 @@
-﻿using System.Collections.Generic;
-
-namespace HueUpdater.Settings
+﻿namespace HueUpdater.Settings
 {
 
     /// <summary>
-    /// Settings that represent schedules.
+    /// Settings to define a schedule.
     /// </summary>
     public class ScheduleSettings
-        : Dictionary<string, TimeRangeSettings>
     {
+        public uint Priority { get; set; }
+        public TimeRangeSettings Hours { get; set; } = new TimeRangeSettings();
     }
 
 }

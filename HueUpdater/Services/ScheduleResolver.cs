@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using HueUpdater.Abstractions;
 using HueUpdater.Settings;
@@ -10,42 +11,51 @@ namespace HueUpdater.Services
     /// Resolves a schedule based on a date.
     /// </summary>
     public class ScheduleResolver
-        : IResolver<DateTime, (string Name, TimeRangeSettings Times)>
+        : IResolver<DateTime, (string ScheduleName, ScheduleSettings Schedule)>
     {
 
         /// <summary>
-        /// The service required to get the name of a schedule.
+        /// The services required to get candidate schedule names based on a date.
         /// </summary>
-        private IResolver<DateTime, string> ScheduleNameResolver { get; }
+        private IEnumerable<IResolver<DateTime, string>> ScheduleNameCandidateResolvers { get; }
 
 
         /// <summary>
-        /// The available schedules.
+        /// The service required to reduce the candidate schedule names.
         /// </summary>
-        private ScheduleSettings Schedules { get; }
+        private IResolver<string[], string> ScheduleNameResolver { get; }
+
+
+        /// <summary>
+        /// The schedules required to construct the resolved values.
+        /// </summary>
+        private Dictionary<string, ScheduleSettings> Schedules { get; }
 
 
         /// <summary>
         /// Main constructor.
         /// </summary>
+        /// <param name="scheduleNameCandidateResolvers">The value for the <see cref="ScheduleNameCandidateResolvers"/> property.</param>
         /// <param name="scheduleNameResolver">The value for the <see cref="ScheduleNameResolver"/> property.</param>
         /// <param name="schedules">The value for the <see cref="Schedules"/> property.</param>
         /// <exception cref="ArgumentNullException">If a required dependency is not provided.</exception>
-        /// <exception cref="ArgumentOutOfRangeException">If a required dependency is not valid.</exception>
         public ScheduleResolver(
-            IResolver<DateTime, string> scheduleNameResolver,
-            ScheduleSettings schedules)
+            IEnumerable<IResolver<DateTime, string>> scheduleNameCandidateResolvers,
+            IResolver<string[], string> scheduleNameResolver,
+            Dictionary<string, ScheduleSettings> schedules
+        )
         {
+            ScheduleNameCandidateResolvers = scheduleNameCandidateResolvers ?? throw new ArgumentNullException(nameof(scheduleNameCandidateResolvers));
             ScheduleNameResolver = scheduleNameResolver ?? throw new ArgumentNullException(nameof(scheduleNameResolver));
             Schedules = schedules ?? throw new ArgumentNullException(nameof(schedules));
-            if (!schedules.Keys.Any()) { throw new ArgumentOutOfRangeException(nameof(schedules)); }
         }
 
 
         /// <inheritdoc/>
-        public (string Name, TimeRangeSettings Times) Resolve(DateTime input)
+        public (string ScheduleName, ScheduleSettings Schedule) Resolve(DateTime input)
         {
-            var scheduleName = ScheduleNameResolver.Resolve(input.Date) ?? Schedules.Keys.First();
+            var scheduleCandidateNames = ScheduleNameCandidateResolvers.Select(scr => scr.Resolve(input)).ToArray();
+            var scheduleName = ScheduleNameResolver.Resolve(scheduleCandidateNames);
             var schedule = Schedules[scheduleName];
             return (scheduleName, schedule);
         }

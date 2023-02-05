@@ -1,14 +1,14 @@
 ﻿using System.Linq;
 using HueUpdater.Abstractions;
-using HueUpdater.Models;
+using HueUpdater.Dtos;
 
 namespace HueUpdater.Services
 {
 
     /// <summary>
-    /// Resolves a build status from multiple values.
+    /// Resolves a <see cref="CIBuildStatus"/> from multiple values.
     /// </summary>
-    public class CIBuildStatusResolver
+    public class CIBuildStatusReducer
         : IResolver<CIBuildStatus[], CIBuildStatus>
     {
 

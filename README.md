@@ -1,7 +1,7 @@
 
-# Hue Updater
+# HueUpdater
 
-Updates the color of a Philips Hue API compatible light based on the status of multiple projects.
+Updates a Hue API compatible light based on the status of projects in a CI system.
 
 ![Stable, Stable & Building, Broken, Broken & Building](https://i.imgur.com/YuEo7Ak.jpg)
 Stable | Stable & Building | Broken | Broken & Building
@@ -22,13 +22,13 @@ AppVeyor status:  [![AppVeyor status](https://ci.appveyor.com/api/projects/statu
 
 ## Motivation
 
-I use a lamp at work to give our team instant feedback about the status of multiple projects tracked by our CI system.
+I use lamps at work to give my teams instant feedback about the status of multiple projects tracked by our CI systems.
 
-This application manages that lamp.
+Multiple copies of this application manage lamps with lights that are connected to a Hue bridge.
 
-The current version connects to a Jenkins instance and aggregates the status values to determine the light color.
+The information that determines the color of each light is obtained with [CIStatusAggregator](https://github.com/jorgeyanesdiez/CIStatusAggregator).
 
-Depending on a defined schedule and a calendar, it then turns the lamp on/off, and sets the light color accordingly.
+Based on a defined schedule and a calendar, it then turns the lamp on/off and sets the light color accordingly.
 
 
 

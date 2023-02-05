@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using HueUpdater.Abstractions;
 using HueUpdater.Settings;
@@ -7,84 +8,42 @@ namespace HueUpdater.Services
 {
 
     /// <summary>
-    /// Resolves a schedule name based on a calendar and a date.
+    /// Resolves a schedule name based on its priority.
     /// </summary>
     public class ScheduleNameResolver
-        : IResolver<DateTime, string>
+        : IResolver<string[], string>
     {
 
         /// <summary>
-        /// The calendar required to resolve the schedule name.
+        /// The schedules required for lookups.
         /// </summary>
-        private CalendarSettings Calendar { get; }
+        private Dictionary<string, ScheduleSettings> Schedules { get; }
 
 
         /// <summary>
         /// Main constructor.
         /// </summary>
-        /// <param name="calendar">The value for the <see cref="Calendar"/> property.</param>
+        /// <param name="schedules">The value for the <see cref="Schedules"/> property.</param>
         /// <exception cref="ArgumentNullException">If a required dependency is not provided.</exception>
-        public ScheduleNameResolver(CalendarSettings calendar)
+        public ScheduleNameResolver(Dictionary<string, ScheduleSettings> schedules)
         {
-            Calendar = calendar ?? throw new ArgumentNullException(nameof(calendar));
+            Schedules = schedules ?? throw new ArgumentNullException(nameof(schedules));
         }
 
 
         /// <inheritdoc/>
-        public string Resolve(DateTime date)
+        public string Resolve(string[] input)
         {
-            var overridenName = ResolveOverriden(date);
-            var defaultName = ResolveDefault(date);
-            var scheduleName = defaultName;
-
-            if (overridenName != null && !(Calendar.DayOverridesExclusions?.Contains(defaultName ?? Guid.NewGuid().ToString()) ?? false))
+            var lookup = input.Select(scheduleName => new
             {
-                scheduleName = overridenName;
-            }
+                Name = scheduleName,
+                Priority = Schedules.ContainsKey(scheduleName)
+                    ? Schedules[scheduleName].Priority
+                    : uint.MaxValue
+            });
 
-            return scheduleName;
-        }
-
-
-        /// <summary>
-        /// Resolves a schedule name according to the day override settings.
-        /// </summary>
-        /// <param name="date">The date to find a schedule name for.</param>
-        /// <returns>The name of the schedule.</returns>
-        public string ResolveOverriden(DateTime date)
-        {
-            var scheduleName = Calendar.DayOverrides?.OrderBy(grp => grp.Key).FirstOrDefault(dayNames =>
-                dayNames.Value.Any(dayName =>
-                {
-                    var isDayParsed = Enum.TryParse<DayOfWeek>(dayName, out var dayOfWeek);
-                    var result = isDayParsed && date.Date.DayOfWeek == dayOfWeek;
-                    return result;
-                })
-            ).Key;
-
-            return scheduleName;
-        }
-
-
-        /// <summary>
-        /// Resolves a schedule name according to the default calendar settings.
-        /// </summary>
-        /// <param name="date">The date to find a schedule name for.</param>
-        /// <returns>The name of the schedule.</returns>
-        public string ResolveDefault(DateTime date)
-        {
-            var scheduleName = Calendar.Defaults?.OrderBy(grp => grp.Key).FirstOrDefault(dateRanges =>
-                dateRanges.Value.Any(dateRange =>
-                {
-                    var isStartDateParsed = DateTime.TryParse(dateRange.Start, out var startDate);
-                    var isFinishDateParsed = DateTime.TryParse(dateRange.Finish, out var finishDate);
-                    var result = isStartDateParsed && isFinishDateParsed &&
-                        date.Date >= startDate && date.Date <= finishDate;
-                    return result;
-                })
-            ).Key;
-
-            return scheduleName;
+            var result = lookup.MinBy(schedule => schedule.Priority).Name;
+            return result;
         }
 
     }

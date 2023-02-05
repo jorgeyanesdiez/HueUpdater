@@ -5,4 +5,4 @@
 
 using System.Diagnostics.CodeAnalysis;
 
-[assembly: SuppressMessage("Performance", "CA1806:Do not ignore method results", Justification = "During unit testing, many objects are built just to test the constructor.", Scope = "module")]
+[assembly: SuppressMessage("Performance", "CA1806:Do not ignore method results", Justification = "Annoyance when testing constructors with FluentAssertions", Scope = "NamespaceAndDescendants", Target = "~N:HueUpdater")]

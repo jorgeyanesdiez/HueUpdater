@@ -1,5 +1,7 @@
 ﻿using System;
+using System.Diagnostics.CodeAnalysis;
 using FluentAssertions;
+using HueUpdater.Models;
 using HueUpdater.Settings;
 using Xunit;
 
@@ -18,51 +20,22 @@ namespace HueUpdater.Factories
         }
 
 
-        [Fact]
-        public void CreateBlue_ReturnsExpected()
+        [Theory]
+        [InlineData(LightColor.Blue, "BlueHue")]
+        [InlineData(LightColor.Green, "GreenHue")]
+        [InlineData(LightColor.Red, "RedHue")]
+        [InlineData(LightColor.Yellow, "YellowHue")]
+        public void Resolve_IsExpected(LightColor lightColor, string huePropName)
         {
-            int testHue = 0xC0FFEE;
-            var appearancePresetSettings = new AppearancePresetSettings() { BlueHue = testHue };
+            var appearancePresetSettings = new AppearancePresetSettings();
+            var presetHueProp = typeof(AppearancePresetSettings).GetProperty(huePropName);
+            var huePropValue = new Random(0xC0FFEE).Next();
+            presetHueProp.SetValue(appearancePresetSettings, huePropValue);
+
             var sut = new HueColorFactory(appearancePresetSettings);
-            var result = sut.CreateBlue();
+            var result = sut.Resolve(lightColor);
             result.Should().NotBeNull();
-            result.Hue.Should().Be(testHue);
-        }
-
-
-        [Fact]
-        public void CreateGreen_ReturnsExpected()
-        {
-            int testHue = 0xC0FFEE;
-            var appearancePresetSettings = new AppearancePresetSettings() { GreenHue = testHue };
-            var sut = new HueColorFactory(appearancePresetSettings);
-            var result = sut.CreateGreen();
-            result.Should().NotBeNull();
-            result.Hue.Should().Be(testHue);
-        }
-
-
-        [Fact]
-        public void CreateRed_ReturnsExpected()
-        {
-            int testHue = 0xC0FFEE;
-            var appearancePresetSettings = new AppearancePresetSettings() { RedHue = testHue };
-            var sut = new HueColorFactory(appearancePresetSettings);
-            var result = sut.CreateRed();
-            result.Should().NotBeNull();
-            result.Hue.Should().Be(testHue);
-        }
-
-
-        [Fact]
-        public void CreateYellow_ReturnsExpected()
-        {
-            int testHue = 0xC0FFEE;
-            var appearancePresetSettings = new AppearancePresetSettings() { YellowHue = testHue };
-            var sut = new HueColorFactory(appearancePresetSettings);
-            var result = sut.CreateYellow();
-            result.Should().NotBeNull();
-            result.Hue.Should().Be(testHue);
+            result.Hue.Should().Be(huePropValue);
         }
 
     }

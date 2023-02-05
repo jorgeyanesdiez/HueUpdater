@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Diagnostics.CodeAnalysis;
 using FluentAssertions;
 using Xunit;
 
@@ -12,7 +13,7 @@ namespace HueUpdater.Services
         [Fact]
         public void Constructor_Null_Throws()
         {
-            Action action = () => new JsonNetFileSerializer(null);
+            Action action = () => new JsonNetFileSerializer<object>(null);
             action.Should().ThrowExactly<ArgumentNullException>();
         }
 
@@ -23,7 +24,7 @@ namespace HueUpdater.Services
         [InlineData("\t")]
         public void Constructor_Invalid_Throws(string input)
         {
-            Action action = () => new JsonNetFileSerializer(input);
+            Action action = () => new JsonNetFileSerializer<object>(input);
             action.Should().ThrowExactly<ArgumentOutOfRangeException>();
         }
 

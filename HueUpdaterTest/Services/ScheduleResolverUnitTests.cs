@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using FluentAssertions;
 using HueUpdater.Abstractions;
 using HueUpdater.Settings;
@@ -13,9 +15,17 @@ namespace HueUpdater.Services
     {
 
         [Fact]
-        public void Constructor_NullService_Throws()
+        public void Constructor_NullScheduleNameCandidateResolvers_Throws()
         {
-            Action action = () => new ScheduleResolver(null, new ScheduleSettings());
+            Action action = () => new ScheduleResolver(null, Mock.Of<IResolver<string[], string>>(), new Dictionary<string, ScheduleSettings>());
+            action.Should().ThrowExactly<ArgumentNullException>();
+        }
+
+
+        [Fact]
+        public void Constructor_NullScheduleNameResolver_Throws()
+        {
+            Action action = () => new ScheduleResolver(Mock.Of<IEnumerable<IResolver<DateTime, string>>>(), null, new Dictionary<string, ScheduleSettings>());
             action.Should().ThrowExactly<ArgumentNullException>();
         }
 
@@ -23,40 +33,49 @@ namespace HueUpdater.Services
         [Fact]
         public void Constructor_NullSchedules_Throws()
         {
-            Action action = () => new ScheduleResolver(Mock.Of<IResolver<DateTime, string>>(), null);
+            Action action = () => new ScheduleResolver(Mock.Of<IEnumerable<IResolver<DateTime, string>>>(), Mock.Of<IResolver<string[], string>>(), null);
             action.Should().ThrowExactly<ArgumentNullException>();
         }
 
 
         [Fact]
-        public void Constructor_EmptySchedules_Throws()
+        public void Resolve_Schedules_IsExpected()
         {
-            Action action = () => new ScheduleResolver(Mock.Of<IResolver<DateTime, string>>(), new ScheduleSettings());
-            action.Should().ThrowExactly<ArgumentOutOfRangeException>();
-        }
+            var sampleScheduleName = "sample_schedule";
+            var sampleSchedule = new Dictionary<string, ScheduleSettings>() { { sampleScheduleName, new ScheduleSettings() } };
 
-
-        [Theory]
-        [InlineData(null)]
-        [InlineData("Explicit")]
-        public void Resolve_Schedules_IsExpected(string mockResult)
-        {
-            var mock = new Mock<IResolver<DateTime, string>>();
-            mock.Setup(m => m.Resolve(It.IsAny<DateTime>()))
-                .Returns(mockResult)
+            var scheduleNameCandidateResolverMock1 = new Mock<IResolver<DateTime, string>>();
+            scheduleNameCandidateResolverMock1.Setup(m => m.Resolve(It.IsAny<DateTime>()))
                 .Verifiable();
 
-            var schedules = new ScheduleSettings
-            {
-                { "Default", new TimeRangeSettings() },
-                { "Explicit", new TimeRangeSettings() }
-            };
-            var sut = new ScheduleResolver(mock.Object, schedules);
-            var actual = sut.Resolve(DateTime.Today);
+            var scheduleNameCandidateResolverMock2 = new Mock<IResolver<DateTime, string>>();
+            scheduleNameCandidateResolverMock2.Setup(m => m.Resolve(It.IsAny<DateTime>()))
+                .Verifiable();
 
-            mock.Verify();
-            if (mockResult == null) { actual.Name.Should().NotBeNull().And.NotBe(mockResult); }
-            else { actual.Name.Should().Be(mockResult); }
+            var scheduleNameCandidateResolvers = new[]
+            {
+                scheduleNameCandidateResolverMock1.Object,
+                scheduleNameCandidateResolverMock2.Object
+            };
+
+            var scheduleNameResolverMock = new Mock<IResolver<string[], string>>();
+            scheduleNameResolverMock.Setup(m => m.Resolve(It.IsAny<string[]>()))
+                .Returns(sampleScheduleName)
+                .Verifiable();
+
+            var sut = new ScheduleResolver(
+                scheduleNameCandidateResolvers,
+                scheduleNameResolverMock.Object,
+                sampleSchedule
+            );
+
+            var (ScheduleName, Schedule) = sut.Resolve(DateTime.Today);
+
+            scheduleNameCandidateResolverMock1.Verify(m => m.Resolve(It.IsAny<DateTime>()), Times.Once);
+            scheduleNameCandidateResolverMock2.Verify(m => m.Resolve(It.IsAny<DateTime>()), Times.Once);
+            scheduleNameResolverMock.Verify(m => m.Resolve(It.IsAny<string[]>()), Times.Once);
+            ScheduleName.Should().Be(sampleScheduleName);
+            Schedule.Should().NotBeNull();
         }
 
     }

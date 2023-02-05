@@ -1,4 +1,6 @@
-﻿namespace HueUpdater.Settings
+﻿using System;
+
+namespace HueUpdater.Settings
 {
 
     /// <summary>
@@ -6,8 +8,37 @@
     /// </summary>
     public class DateRangeSettings
     {
-        public string Start { get; set; }
-        public string Finish { get; set; }
+        public DateTime StartDate { get; private set; } = DateTime.MinValue.Date;
+        public DateTime FinishDate { get; private set; } = DateTime.MaxValue.Date;
+
+        private string _start;
+        public string Start
+        {
+            get
+            {
+                return _start;
+            }
+            set
+            {
+                StartDate = DateTime.Parse(value);
+                _start = value;
+            }
+        }
+
+        private string _finish;
+        public string Finish
+        {
+            get
+            {
+                return _finish;
+            }
+            set
+            {
+                FinishDate = DateTime.Parse(value).Date;
+                _finish = value;
+            }
+        }
+
     }
 
 }

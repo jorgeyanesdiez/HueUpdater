@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using Flurl.Http;
 using HueUpdater.Abstractions;
 using HueUpdater.Dtos;
 using HueUpdater.Factories;
@@ -34,39 +35,40 @@ namespace HueUpdater.Services
 
 
         /// <summary>
-        /// The service required to determine whether a build is taking place.
+        /// The URLs to get CI information from.
         /// </summary>
-        private IResolver<CIActivityStatus[], CIActivityStatus> ActivityStatusResolver { get; }
+        private List<string> CIStatusUrls { get; }
 
 
         /// <summary>
-        /// The service required to determine whether builds are broken or stable.
+        /// The service required to reduce multiple CI status values to a single one.
         /// </summary>
-        private IResolver<CIBuildStatus[], CIBuildStatus> BuildStatusResolver { get; }
+        private IResolver<CIStatus[], CIStatus> CIStatusReducer { get; }
 
 
         /// <summary>
-        /// The service required to determine whether the lamps should be flashing.
+        /// The service required to determine whether a light should flash.
         /// </summary>
-        private IResolver<CIStatusChangeQuery, HueAlert> HueAlertResolver { get; }
+        private IResolver<LightStatusChangeQuery, HueAlert> HueAlertResolver { get; }
 
 
         /// <summary>
-        /// The service required to determine the color of the lamps.
+        /// The items to be processed by this service.
+        /// Each item represents an endpoint to be updated.
         /// </summary>
-        private IResolver<CIStatus, HueColor> HueColorResolver { get; }
+        private IEnumerable<HueUpdaterItem> HueUpdaterItems { get; }
 
 
         /// <summary>
-        /// The service required to modify the state of the lamps.
+        /// The service required to determine the color of the light.
         /// </summary>
-        private IHueInvoker HueInvoker { get; }
+        private IResolver<CIStatus, LightColor> LightColorResolver { get; }
 
 
         /// <summary>
-        /// The service required to to access the file with the last build status.
+        /// The service used to persist and recover the status of the light.
         /// </summary>
-        private ISerializer Serializer { get; }
+        private ISerializer<LightStatus> Serializer { get; }
 
 
         /// <summary>
@@ -78,19 +80,7 @@ namespace HueUpdater.Services
         /// <summary>
         /// The service required to get a schedule.
         /// </summary>
-        private IResolver<DateTime, (string Name, TimeRangeSettings Times)> ScheduleResolver { get; }
-
-
-        /// <summary>
-        /// The services required to get activity information from different endpoints.
-        /// </summary>
-        private IEnumerable<IActivityStatusProvider<Task<CIActivityStatus>>> ActivityStatusProviders { get; }
-
-
-        /// <summary>
-        /// The services required to get build status information from different endpoints.
-        /// </summary>
-        private IEnumerable<IBuildStatusProvider<Task<CIBuildStatus>>> BuildStatusProviders { get; }
+        private IResolver<DateTime, (string Name, ScheduleSettings Schedule)> ScheduleResolver { get; }
 
 
         /// <summary>
@@ -98,102 +88,116 @@ namespace HueUpdater.Services
         /// </summary>
         /// <param name="appLifetime">The value for the <see cref="AppLifetime"/> property.</param>
         /// <param name="logger">The value for the <see cref="Logger"/> property.</param>
-        /// <param name="activityStatusResolver">The value for the <see cref="ActivityStatusResolver"/> property.</param>
-        /// <param name="buildStatusResolver">The value for the <see cref="BuildStatusResolver"/> property.</param>
+        /// <param name="ciStatusUrls">The value for the <see cref="CIStatusUrls"/> property.</param>
+        /// <param name="ciStatusReducer">The value for the <see cref="CIStatusReducer"/> property.</param>
         /// <param name="hueAlertResolver">The value for the <see cref="HueAlertResolver"/> property.</param>
-        /// <param name="hueColorResolver">The value for the <see cref="HueColorResolver"/> property.</param>
-        /// <param name="hueInvoker">The value for the <see cref="HueInvoker"/> property.</param>
+        /// <param name="hueUpdaterItems">The value for the <see cref="HueUpdaterItems"/> property.</param>
+        /// <param name="lightColorResolver">The value for the <see cref="LightColorResolver"/> property.</param>
         /// <param name="serializer">The value for the <see cref="Serializer"/> property.</param>
         /// <param name="scheduleApplicabilityResolver">The value for the <see cref="ScheduleApplicabilityResolver"/> property.</param>
         /// <param name="scheduleResolver">The value for the <see cref="ScheduleResolver"/> property.</param>
-        /// <param name="activityStatusProviders">The value for the <see cref="ActivityStatusProviders"/> property.</param>
-        /// <param name="buildStatusProviders">The value for the <see cref="BuildStatusProviders"/> property.</param>
+        /// <exception cref="ArgumentNullException">If a required dependency is not provided.</exception>
         public HueUpdaterService(
             IHostApplicationLifetime appLifetime,
             ILogger<HueUpdaterService> logger,
-            IResolver<CIActivityStatus[], CIActivityStatus> activityStatusResolver,
-            IResolver<CIBuildStatus[], CIBuildStatus> buildStatusResolver,
-            IResolver<CIStatusChangeQuery, HueAlert> hueAlertResolver,
-            IResolver<CIStatus, HueColor> hueColorResolver,
-            IHueInvoker hueInvoker,
-            ISerializer serializer,
+            List<string> ciStatusUrls,
+            IResolver<CIStatus[], CIStatus> ciStatusReducer,
+            IResolver<LightStatusChangeQuery, HueAlert> hueAlertResolver,
+            IEnumerable<HueUpdaterItem> hueUpdaterItems,
+            IResolver<CIStatus, LightColor> lightColorResolver,
+            ISerializer<LightStatus> serializer,
             IResolver<ScheduleQuery, bool> scheduleApplicabilityResolver,
-            IResolver<DateTime, (string Name, TimeRangeSettings Times)> scheduleResolver,
-            IEnumerable<IActivityStatusProvider<Task<CIActivityStatus>>> activityStatusProviders,
-            IEnumerable<IBuildStatusProvider<Task<CIBuildStatus>>> buildStatusProviders
+            IResolver<DateTime, (string Name, ScheduleSettings Schedule)> scheduleResolver
         )
         {
             AppLifetime = appLifetime ?? throw new ArgumentNullException(nameof(appLifetime));
             Logger = logger ?? throw new ArgumentNullException(nameof(logger));
-            ActivityStatusResolver = activityStatusResolver ?? throw new ArgumentNullException(nameof(activityStatusResolver));
-            BuildStatusResolver = buildStatusResolver ?? throw new ArgumentNullException(nameof(buildStatusResolver));
+            CIStatusUrls = ciStatusUrls ?? throw new ArgumentNullException(nameof(ciStatusUrls));
+            if (!ciStatusUrls.Any()) { throw new ArgumentOutOfRangeException(nameof(ciStatusUrls)); }
+            CIStatusReducer = ciStatusReducer ?? throw new ArgumentNullException(nameof(ciStatusReducer));
             HueAlertResolver = hueAlertResolver ?? throw new ArgumentNullException(nameof(hueAlertResolver));
-            HueColorResolver = hueColorResolver ?? throw new ArgumentNullException(nameof(hueColorResolver));
-            HueInvoker = hueInvoker ?? throw new ArgumentNullException(nameof(hueInvoker));
+            HueUpdaterItems = hueUpdaterItems ?? throw new ArgumentNullException(nameof(hueUpdaterItems));
+            if (!hueUpdaterItems.Any()) { throw new ArgumentOutOfRangeException(nameof(hueUpdaterItems)); }
+            LightColorResolver = lightColorResolver ?? throw new ArgumentNullException(nameof(lightColorResolver));
             Serializer = serializer ?? throw new ArgumentNullException(nameof(serializer));
             ScheduleApplicabilityResolver = scheduleApplicabilityResolver ?? throw new ArgumentNullException(nameof(scheduleApplicabilityResolver));
             ScheduleResolver = scheduleResolver ?? throw new ArgumentNullException(nameof(scheduleResolver));
-            ActivityStatusProviders = activityStatusProviders ?? throw new ArgumentNullException(nameof(activityStatusProviders));
-            if (!activityStatusProviders.Any()) { throw new ArgumentOutOfRangeException(nameof(activityStatusProviders)); }
-            BuildStatusProviders = buildStatusProviders ?? throw new ArgumentNullException(nameof(buildStatusProviders));
-            if (!buildStatusProviders.Any()) { throw new ArgumentOutOfRangeException(nameof(buildStatusProviders)); }
         }
 
 
         /// <inheritdoc />
         protected override async Task ExecuteAsync(CancellationToken _)
         {
-            try { await UpdateHueEndpointAsync(); }
+            var processTask = ProcessItemsAsync();
+            try { await processTask; }
             catch (Exception exc)
             {
-                Logger.LogError("An error was encountered: {ExceptionType}", exc.GetType());
-                throw;
+                var e = processTask.Exception?.Flatten() ?? exc;
+                Logger.LogError("Error: {ExceptionMessage}", e.Message);
+                throw e;
             }
             finally { AppLifetime.StopApplication(); }
         }
 
 
         /// <summary>
-        /// Orchestrates all required services to update the Hue lamp.
+        /// Orchestrates services to process each defined item.
         /// </summary>
-        /// <returns>The task required for async compatibility.</returns>
-        public async Task UpdateHueEndpointAsync()
+        /// <returns>The task context.</returns>
+        public async Task ProcessItemsAsync()
         {
             var dateTime = DateTime.Now;
-            var (scheduleName, scheduleTime) = ScheduleResolver.Resolve(dateTime.Date);
-            var isScheduleApplicable = ScheduleApplicabilityResolver.Resolve(new ScheduleQuery { ScheduleName = scheduleName, Time = dateTime.TimeOfDay });
-            Logger.LogInformation("Schedule: {ScheduleName} | {ScheduleTimeStart} - {ScheduleTimeFinish}", scheduleName, scheduleTime.Start, scheduleTime.Finish);
-            Logger.LogInformation("Time: {Timestamp} | Power-On schedule applicable? {ScheduleApplicable}", $"{dateTime:HH:mm}", isScheduleApplicable);
+            var (ScheduleName, Schedule) = ScheduleResolver.Resolve(dateTime.Date);
+            var withinWorkingHours = ScheduleApplicabilityResolver.Resolve(new ScheduleQuery { Time = dateTime.TimeOfDay, Schedule = Schedule });
+            Logger.LogInformation("Schedule: {ScheduleName} | {ScheduleTimeStart} - {ScheduleTimeFinish}", ScheduleName, Schedule.Hours.Start, Schedule.Hours.Finish);
+            Logger.LogInformation("Time: {TimeofDay} | Within working hours? {WithinWorkingHours}", $"{dateTime:HH:mm}", withinWorkingHours);
 
-            // Get the current status
-            var activityStatusCalls = ActivityStatusProviders.Select(a => a.GetActivityStatus());
-            var buildStatusCalls = BuildStatusProviders.Select(b => b.GetBuildStatus());
-            var currentStatus = new CIStatus
+            var currentStatus = new LightStatus() { Power = LightPower.Off, Color = null };
+            if (withinWorkingHours)
             {
-                ActivityStatus = ActivityStatusResolver.Resolve(await Task.WhenAll(activityStatusCalls)),
-                BuildStatus = BuildStatusResolver.Resolve(await Task.WhenAll(buildStatusCalls))
-            };
+                var ciStatusCollection = await Task.WhenAll(CIStatusUrls.Select(async srcUrl => await srcUrl.GetJsonAsync<CIStatus>()));
+                var ciStatus = CIStatusReducer.Resolve(ciStatusCollection);
+                Logger.LogInformation("CI Status: {ActivityStatus} - {BuildStatus}", ciStatus.ActivityStatus, ciStatus.BuildStatus);
 
-            // Get the previous status
-            var previousStatus = Serializer.Deserialize<CIStatus>();
+                currentStatus.Power = LightPower.On;
+                currentStatus.Color = LightColorResolver.Resolve(ciStatus);
+            }
 
-            // Save the current status
+            var previousStatus = Serializer.Deserialize();
             Serializer.Serialize(currentStatus);
+            Logger.LogInformation("Light Status: {Power} - {Color}", currentStatus.Power, currentStatus.Color?.ToString() ?? "No color");
 
-            if (isScheduleApplicable)
+            var hueAlert = HueAlertResolver.Resolve(new LightStatusChangeQuery { Previous = previousStatus, Current = currentStatus });
+            Logger.LogInformation("Alerting?: {Alert}", hueAlert != null);
+
+            await Task.WhenAll(HueUpdaterItems.Select(async item => await ProcessItemAsync(currentStatus, item.HueColorFactory, hueAlert, item.HueInvoker)));
+        }
+
+
+        /// <summary>
+        /// Sends the status to a service item.
+        /// </summary>
+        /// <param name="status">The status of the light.</param>
+        /// <param name="hueColorFactory">The service to create the DTO for the color.</param>
+        /// <param name="hueAlert">Optional DTO for the alert.</param>
+        /// <param name="hueInvoker">The service to contact the endpoints.</param>
+        /// <returns></returns>
+        public async Task ProcessItemAsync(
+            LightStatus status,
+            IResolver<LightColor, HueColor> hueColorFactory,
+            HueAlert hueAlert,
+            IHueInvoker hueInvoker
+        )
+        {
+            if (status.Color.HasValue)
             {
-                // Get the settings for the current status
-                var hueColor = HueColorResolver.Resolve(currentStatus);
-                var hueAlert = HueAlertResolver.Resolve(new CIStatusChangeQuery { Current = currentStatus, Previous = previousStatus });
-                Logger.LogInformation("Status: {ActivityStatus} - {BuildStatus}", currentStatus.ActivityStatus, currentStatus.BuildStatus);
-
-                // Update the endpoint
-                await HueInvoker.PutAsync(hueColor);
-                if (hueAlert != null) { await HueInvoker.PutAsync(hueAlert); }
+                var hueColor = hueColorFactory.Resolve(status.Color.Value);
+                await hueInvoker.PutAsync(hueColor);
+                if (hueAlert != null) { await hueInvoker.PutAsync(hueAlert); }
             }
             else
             {
-                await HueInvoker.PutAsync(HuePowerFactory.CreateOff());
+                await hueInvoker.PutAsync(HuePowerFactory.CreateOff());
             }
         }
 

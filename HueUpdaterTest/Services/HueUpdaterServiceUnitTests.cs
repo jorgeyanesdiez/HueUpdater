@@ -1,8 +1,10 @@
 ﻿using System;
-using System.Dynamic;
+using System.Collections.Generic;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using FluentAssertions;
+using Flurl.Http.Testing;
 using HueUpdater.Abstractions;
 using HueUpdater.Dtos;
 using HueUpdater.Models;
@@ -25,16 +27,14 @@ namespace HueUpdater.Services
             Action action = () => new HueUpdaterService(
                 null,
                 Mock.Of<ILogger<HueUpdaterService>>(),
-                Mock.Of<IResolver<CIActivityStatus[], CIActivityStatus>>(),
-                Mock.Of<IResolver<CIBuildStatus[], CIBuildStatus>>(),
-                Mock.Of<IResolver<CIStatusChangeQuery, HueAlert>>(),
-                Mock.Of<IResolver<CIStatus, HueColor>>(),
-                Mock.Of<IHueInvoker>(),
-                Mock.Of<ISerializer>(),
+                new List<string> { "" },
+                Mock.Of<IResolver<CIStatus[], CIStatus>>(),
+                Mock.Of<IResolver<LightStatusChangeQuery, HueAlert>>(),
+                new List<HueUpdaterItem>() { new HueUpdaterItem(Mock.Of<IHueInvoker>(), Mock.Of<IResolver<LightColor, HueColor>>()) },
+                Mock.Of<IResolver<CIStatus, LightColor>>(),
+                Mock.Of<ISerializer<LightStatus>>(),
                 Mock.Of<IResolver<ScheduleQuery, bool>>(),
-                Mock.Of<IResolver<DateTime, (string Name, TimeRangeSettings Times)>>(),
-                new[] { Mock.Of<IActivityStatusProvider<Task<CIActivityStatus>>>() },
-                new[] { Mock.Of<IBuildStatusProvider<Task<CIBuildStatus>>>() }
+                Mock.Of<IResolver<DateTime, (string Name, ScheduleSettings Schedule)>>()
             );
             action.Should().ThrowExactly<ArgumentNullException>();
         }
@@ -46,58 +46,71 @@ namespace HueUpdater.Services
             Action action = () => new HueUpdaterService(
                 Mock.Of<IHostApplicationLifetime>(),
                 null,
-                Mock.Of<IResolver<CIActivityStatus[], CIActivityStatus>>(),
-                Mock.Of<IResolver<CIBuildStatus[], CIBuildStatus>>(),
-                Mock.Of<IResolver<CIStatusChangeQuery, HueAlert>>(),
-                Mock.Of<IResolver<CIStatus, HueColor>>(),
-                Mock.Of<IHueInvoker>(),
-                Mock.Of<ISerializer>(),
+                new List<string> { "" },
+                Mock.Of<IResolver<CIStatus[], CIStatus>>(),
+                Mock.Of<IResolver<LightStatusChangeQuery, HueAlert>>(),
+                new List<HueUpdaterItem>() { new HueUpdaterItem(Mock.Of<IHueInvoker>(), Mock.Of<IResolver<LightColor, HueColor>>()) },
+                Mock.Of<IResolver<CIStatus, LightColor>>(),
+                Mock.Of<ISerializer<LightStatus>>(),
                 Mock.Of<IResolver<ScheduleQuery, bool>>(),
-                Mock.Of<IResolver<DateTime, (string Name, TimeRangeSettings Times)>>(),
-                new[] { Mock.Of<IActivityStatusProvider<Task<CIActivityStatus>>>() },
-                new[] { Mock.Of<IBuildStatusProvider<Task<CIBuildStatus>>>() }
+                Mock.Of<IResolver<DateTime, (string Name, ScheduleSettings Schedule)>>()
             );
             action.Should().ThrowExactly<ArgumentNullException>();
         }
 
 
         [Fact]
-        public void Constructor_NullActivityStatusResolver_Throws()
+        public void Constructor_NullCIStatusUrls_Throws()
         {
             Action action = () => new HueUpdaterService(
                 Mock.Of<IHostApplicationLifetime>(),
                 Mock.Of<ILogger<HueUpdaterService>>(),
                 null,
-                Mock.Of<IResolver<CIBuildStatus[], CIBuildStatus>>(),
-                Mock.Of<IResolver<CIStatusChangeQuery, HueAlert>>(),
-                Mock.Of<IResolver<CIStatus, HueColor>>(),
-                Mock.Of<IHueInvoker>(),
-                Mock.Of<ISerializer>(),
+                Mock.Of<IResolver<CIStatus[], CIStatus>>(),
+                Mock.Of<IResolver<LightStatusChangeQuery, HueAlert>>(),
+                new List<HueUpdaterItem>() { new HueUpdaterItem(Mock.Of<IHueInvoker>(), Mock.Of<IResolver<LightColor, HueColor>>()) },
+                Mock.Of<IResolver<CIStatus, LightColor>>(),
+                Mock.Of<ISerializer<LightStatus>>(),
                 Mock.Of<IResolver<ScheduleQuery, bool>>(),
-                Mock.Of<IResolver<DateTime, (string Name, TimeRangeSettings Times)>>(),
-                new[] { Mock.Of<IActivityStatusProvider<Task<CIActivityStatus>>>() },
-                new[] { Mock.Of<IBuildStatusProvider<Task<CIBuildStatus>>>() }
+                Mock.Of<IResolver<DateTime, (string Name, ScheduleSettings Schedule)>>()
             );
             action.Should().ThrowExactly<ArgumentNullException>();
         }
 
 
         [Fact]
-        public void Constructor_NullBuildStatusResolver_Throws()
+        public void Constructor_EmptyCIStatusUrls_Throws()
         {
             Action action = () => new HueUpdaterService(
                 Mock.Of<IHostApplicationLifetime>(),
                 Mock.Of<ILogger<HueUpdaterService>>(),
-                Mock.Of<IResolver<CIActivityStatus[], CIActivityStatus>>(),
-                null,
-                Mock.Of<IResolver<CIStatusChangeQuery, HueAlert>>(),
-                Mock.Of<IResolver<CIStatus, HueColor>>(),
-                Mock.Of<IHueInvoker>(),
-                Mock.Of<ISerializer>(),
+                new List<string>(),
+                Mock.Of<IResolver<CIStatus[], CIStatus>>(),
+                Mock.Of<IResolver<LightStatusChangeQuery, HueAlert>>(),
+                new List<HueUpdaterItem>() { new HueUpdaterItem(Mock.Of<IHueInvoker>(), Mock.Of<IResolver<LightColor, HueColor>>()) },
+                Mock.Of<IResolver<CIStatus, LightColor>>(),
+                Mock.Of<ISerializer<LightStatus>>(),
                 Mock.Of<IResolver<ScheduleQuery, bool>>(),
-                Mock.Of<IResolver<DateTime, (string Name, TimeRangeSettings Times)>>(),
-                new[] { Mock.Of<IActivityStatusProvider<Task<CIActivityStatus>>>() },
-                new[] { Mock.Of<IBuildStatusProvider<Task<CIBuildStatus>>>() }
+                Mock.Of<IResolver<DateTime, (string Name, ScheduleSettings Schedule)>>()
+            );
+            action.Should().ThrowExactly<ArgumentOutOfRangeException>();
+        }
+
+
+        [Fact]
+        public void Constructor_NullCIStatusReducer_Throws()
+        {
+            Action action = () => new HueUpdaterService(
+                Mock.Of<IHostApplicationLifetime>(),
+                Mock.Of<ILogger<HueUpdaterService>>(),
+                new List<string> { "" },
+                null,
+                Mock.Of<IResolver<LightStatusChangeQuery, HueAlert>>(),
+                new List<HueUpdaterItem>() { new HueUpdaterItem(Mock.Of<IHueInvoker>(), Mock.Of<IResolver<LightColor, HueColor>>()) },
+                Mock.Of<IResolver<CIStatus, LightColor>>(),
+                Mock.Of<ISerializer<LightStatus>>(),
+                Mock.Of<IResolver<ScheduleQuery, bool>>(),
+                Mock.Of<IResolver<DateTime, (string Name, ScheduleSettings Schedule)>>()
             );
             action.Should().ThrowExactly<ArgumentNullException>();
         }
@@ -109,58 +122,71 @@ namespace HueUpdater.Services
             Action action = () => new HueUpdaterService(
                 Mock.Of<IHostApplicationLifetime>(),
                 Mock.Of<ILogger<HueUpdaterService>>(),
-                Mock.Of<IResolver<CIActivityStatus[], CIActivityStatus>>(),
-                Mock.Of<IResolver<CIBuildStatus[], CIBuildStatus>>(),
+                new List<string> { "" },
+                Mock.Of<IResolver<CIStatus[], CIStatus>>(),
                 null,
-                Mock.Of<IResolver<CIStatus, HueColor>>(),
-                Mock.Of<IHueInvoker>(),
-                Mock.Of<ISerializer>(),
+                new List<HueUpdaterItem>() { new HueUpdaterItem(Mock.Of<IHueInvoker>(), Mock.Of<IResolver<LightColor, HueColor>>()) },
+                Mock.Of<IResolver<CIStatus, LightColor>>(),
+                Mock.Of<ISerializer<LightStatus>>(),
                 Mock.Of<IResolver<ScheduleQuery, bool>>(),
-                Mock.Of<IResolver<DateTime, (string Name, TimeRangeSettings Times)>>(),
-                new[] { Mock.Of<IActivityStatusProvider<Task<CIActivityStatus>>>() },
-                new[] { Mock.Of<IBuildStatusProvider<Task<CIBuildStatus>>>() }
+                Mock.Of<IResolver<DateTime, (string Name, ScheduleSettings Schedule)>>()
             );
             action.Should().ThrowExactly<ArgumentNullException>();
         }
 
 
         [Fact]
-        public void Constructor_NullHueColorResolver_Throws()
+        public void Constructor_NullHueUpdaterItems_Throws()
         {
             Action action = () => new HueUpdaterService(
                 Mock.Of<IHostApplicationLifetime>(),
                 Mock.Of<ILogger<HueUpdaterService>>(),
-                Mock.Of<IResolver<CIActivityStatus[], CIActivityStatus>>(),
-                Mock.Of<IResolver<CIBuildStatus[], CIBuildStatus>>(),
-                Mock.Of<IResolver<CIStatusChangeQuery, HueAlert>>(),
+                new List<string> { "" },
+                Mock.Of<IResolver<CIStatus[], CIStatus>>(),
+                Mock.Of<IResolver<LightStatusChangeQuery, HueAlert>>(),
                 null,
-                Mock.Of<IHueInvoker>(),
-                Mock.Of<ISerializer>(),
+                Mock.Of<IResolver<CIStatus, LightColor>>(),
+                Mock.Of<ISerializer<LightStatus>>(),
                 Mock.Of<IResolver<ScheduleQuery, bool>>(),
-                Mock.Of<IResolver<DateTime, (string Name, TimeRangeSettings Times)>>(),
-                new[] { Mock.Of<IActivityStatusProvider<Task<CIActivityStatus>>>() },
-                new[] { Mock.Of<IBuildStatusProvider<Task<CIBuildStatus>>>() }
+                Mock.Of<IResolver<DateTime, (string Name, ScheduleSettings Schedule)>>()
             );
             action.Should().ThrowExactly<ArgumentNullException>();
         }
 
 
         [Fact]
-        public void Constructor_NullHueInvoker_Throws()
+        public void Constructor_EmptyHueUpdaterItems_Throws()
         {
             Action action = () => new HueUpdaterService(
                 Mock.Of<IHostApplicationLifetime>(),
                 Mock.Of<ILogger<HueUpdaterService>>(),
-                Mock.Of<IResolver<CIActivityStatus[], CIActivityStatus>>(),
-                Mock.Of<IResolver<CIBuildStatus[], CIBuildStatus>>(),
-                Mock.Of<IResolver<CIStatusChangeQuery, HueAlert>>(),
-                Mock.Of<IResolver<CIStatus, HueColor>>(),
-                null,
-                Mock.Of<ISerializer>(),
+                new List<string> { "" },
+                Mock.Of<IResolver<CIStatus[], CIStatus>>(),
+                Mock.Of<IResolver<LightStatusChangeQuery, HueAlert>>(),
+                Enumerable.Empty<HueUpdaterItem>(),
+                Mock.Of<IResolver<CIStatus, LightColor>>(),
+                Mock.Of<ISerializer<LightStatus>>(),
                 Mock.Of<IResolver<ScheduleQuery, bool>>(),
-                Mock.Of<IResolver<DateTime, (string Name, TimeRangeSettings Times)>>(),
-                new[] { Mock.Of<IActivityStatusProvider<Task<CIActivityStatus>>>() },
-                new[] { Mock.Of<IBuildStatusProvider<Task<CIBuildStatus>>>() }
+                Mock.Of<IResolver<DateTime, (string Name, ScheduleSettings Schedule)>>()
+            );
+            action.Should().ThrowExactly<ArgumentOutOfRangeException>();
+        }
+
+
+        [Fact]
+        public void Constructor_NullLightColorResolver_Throws()
+        {
+            Action action = () => new HueUpdaterService(
+                Mock.Of<IHostApplicationLifetime>(),
+                Mock.Of<ILogger<HueUpdaterService>>(),
+                new List<string> { "" },
+                Mock.Of<IResolver<CIStatus[], CIStatus>>(),
+                Mock.Of<IResolver<LightStatusChangeQuery, HueAlert>>(),
+                new List<HueUpdaterItem>() { new HueUpdaterItem(Mock.Of<IHueInvoker>(), Mock.Of<IResolver<LightColor, HueColor>>()) },
+                null,
+                Mock.Of<ISerializer<LightStatus>>(),
+                Mock.Of<IResolver<ScheduleQuery, bool>>(),
+                Mock.Of<IResolver<DateTime, (string Name, ScheduleSettings Schedule)>>()
             );
             action.Should().ThrowExactly<ArgumentNullException>();
         }
@@ -172,16 +198,14 @@ namespace HueUpdater.Services
             Action action = () => new HueUpdaterService(
                 Mock.Of<IHostApplicationLifetime>(),
                 Mock.Of<ILogger<HueUpdaterService>>(),
-                Mock.Of<IResolver<CIActivityStatus[], CIActivityStatus>>(),
-                Mock.Of<IResolver<CIBuildStatus[], CIBuildStatus>>(),
-                Mock.Of<IResolver<CIStatusChangeQuery, HueAlert>>(),
-                Mock.Of<IResolver<CIStatus, HueColor>>(),
-                Mock.Of<IHueInvoker>(),
+                new List<string> { "" },
+                Mock.Of<IResolver<CIStatus[], CIStatus>>(),
+                Mock.Of<IResolver<LightStatusChangeQuery, HueAlert>>(),
+                new List<HueUpdaterItem>() { new HueUpdaterItem(Mock.Of<IHueInvoker>(), Mock.Of<IResolver<LightColor, HueColor>>()) },
+                Mock.Of<IResolver<CIStatus, LightColor>>(),
                 null,
                 Mock.Of<IResolver<ScheduleQuery, bool>>(),
-                Mock.Of<IResolver<DateTime, (string Name, TimeRangeSettings Times)>>(),
-                new[] { Mock.Of<IActivityStatusProvider<Task<CIActivityStatus>>>() },
-                new[] { Mock.Of<IBuildStatusProvider<Task<CIBuildStatus>>>() }
+                Mock.Of<IResolver<DateTime, (string Name, ScheduleSettings Schedule)>>()
             );
             action.Should().ThrowExactly<ArgumentNullException>();
         }
@@ -193,16 +217,14 @@ namespace HueUpdater.Services
             Action action = () => new HueUpdaterService(
                 Mock.Of<IHostApplicationLifetime>(),
                 Mock.Of<ILogger<HueUpdaterService>>(),
-                Mock.Of<IResolver<CIActivityStatus[], CIActivityStatus>>(),
-                Mock.Of<IResolver<CIBuildStatus[], CIBuildStatus>>(),
-                Mock.Of<IResolver<CIStatusChangeQuery, HueAlert>>(),
-                Mock.Of<IResolver<CIStatus, HueColor>>(),
-                Mock.Of<IHueInvoker>(),
-                Mock.Of<ISerializer>(),
+                new List<string> { "" },
+                Mock.Of<IResolver<CIStatus[], CIStatus>>(),
+                Mock.Of<IResolver<LightStatusChangeQuery, HueAlert>>(),
+                new List<HueUpdaterItem>() { new HueUpdaterItem(Mock.Of<IHueInvoker>(), Mock.Of<IResolver<LightColor, HueColor>>()) },
+                Mock.Of<IResolver<CIStatus, LightColor>>(),
+                Mock.Of<ISerializer<LightStatus>>(),
                 null,
-                Mock.Of<IResolver<DateTime, (string Name, TimeRangeSettings Times)>>(),
-                new[] { Mock.Of<IActivityStatusProvider<Task<CIActivityStatus>>>() },
-                new[] { Mock.Of<IBuildStatusProvider<Task<CIBuildStatus>>>() }
+                Mock.Of<IResolver<DateTime, (string Name, ScheduleSettings Schedule)>>()
             );
             action.Should().ThrowExactly<ArgumentNullException>();
         }
@@ -214,57 +236,13 @@ namespace HueUpdater.Services
             Action action = () => new HueUpdaterService(
                 Mock.Of<IHostApplicationLifetime>(),
                 Mock.Of<ILogger<HueUpdaterService>>(),
-                Mock.Of<IResolver<CIActivityStatus[], CIActivityStatus>>(),
-                Mock.Of<IResolver<CIBuildStatus[], CIBuildStatus>>(),
-                Mock.Of<IResolver<CIStatusChangeQuery, HueAlert>>(),
-                Mock.Of<IResolver<CIStatus, HueColor>>(),
-                Mock.Of<IHueInvoker>(),
-                Mock.Of<ISerializer>(),
+                new List<string> { "" },
+                Mock.Of<IResolver<CIStatus[], CIStatus>>(),
+                Mock.Of<IResolver<LightStatusChangeQuery, HueAlert>>(),
+                new List<HueUpdaterItem>() { new HueUpdaterItem(Mock.Of<IHueInvoker>(), Mock.Of<IResolver<LightColor, HueColor>>()) },
+                Mock.Of<IResolver<CIStatus, LightColor>>(),
+                Mock.Of<ISerializer<LightStatus>>(),
                 Mock.Of<IResolver<ScheduleQuery, bool>>(),
-                null,
-                new[] { Mock.Of<IActivityStatusProvider<Task<CIActivityStatus>>>() },
-                new[] { Mock.Of<IBuildStatusProvider<Task<CIBuildStatus>>>() }
-            );
-            action.Should().ThrowExactly<ArgumentNullException>();
-        }
-
-
-        [Fact]
-        public void Constructor_NullActivityStatusProviders_Throws()
-        {
-            Action action = () => new HueUpdaterService(
-                Mock.Of<IHostApplicationLifetime>(),
-                Mock.Of<ILogger<HueUpdaterService>>(),
-                Mock.Of<IResolver<CIActivityStatus[], CIActivityStatus>>(),
-                Mock.Of<IResolver<CIBuildStatus[], CIBuildStatus>>(),
-                Mock.Of<IResolver<CIStatusChangeQuery, HueAlert>>(),
-                Mock.Of<IResolver<CIStatus, HueColor>>(),
-                Mock.Of<IHueInvoker>(),
-                Mock.Of<ISerializer>(),
-                Mock.Of<IResolver<ScheduleQuery, bool>>(),
-                Mock.Of<IResolver<DateTime, (string Name, TimeRangeSettings Times)>>(),
-                null,
-                new[] { Mock.Of<IBuildStatusProvider<Task<CIBuildStatus>>>() }
-            );
-            action.Should().ThrowExactly<ArgumentNullException>();
-        }
-
-
-        [Fact]
-        public void Constructor_NullBuildStatusProviders_Throws()
-        {
-            Action action = () => new HueUpdaterService(
-                Mock.Of<IHostApplicationLifetime>(),
-                Mock.Of<ILogger<HueUpdaterService>>(),
-                Mock.Of<IResolver<CIActivityStatus[], CIActivityStatus>>(),
-                Mock.Of<IResolver<CIBuildStatus[], CIBuildStatus>>(),
-                Mock.Of<IResolver<CIStatusChangeQuery, HueAlert>>(),
-                Mock.Of<IResolver<CIStatus, HueColor>>(),
-                Mock.Of<IHueInvoker>(),
-                Mock.Of<ISerializer>(),
-                Mock.Of<IResolver<ScheduleQuery, bool>>(),
-                Mock.Of<IResolver<DateTime, (string Name, TimeRangeSettings Times)>>(),
-                new[] { Mock.Of<IActivityStatusProvider<Task<CIActivityStatus>>>() },
                 null
             );
             action.Should().ThrowExactly<ArgumentNullException>();
@@ -272,78 +250,32 @@ namespace HueUpdater.Services
 
 
         [Fact]
-        public void Constructor_EmptyActivityStatusProviders_Throws()
-        {
-            Action action = () => new HueUpdaterService(
-                Mock.Of<IHostApplicationLifetime>(),
-                Mock.Of<ILogger<HueUpdaterService>>(),
-                Mock.Of<IResolver<CIActivityStatus[], CIActivityStatus>>(),
-                Mock.Of<IResolver<CIBuildStatus[], CIBuildStatus>>(),
-                Mock.Of<IResolver<CIStatusChangeQuery, HueAlert>>(),
-                Mock.Of<IResolver<CIStatus, HueColor>>(),
-                Mock.Of<IHueInvoker>(),
-                Mock.Of<ISerializer>(),
-                Mock.Of<IResolver<ScheduleQuery, bool>>(),
-                Mock.Of<IResolver<DateTime, (string Name, TimeRangeSettings Times)>>(),
-                Array.Empty<IActivityStatusProvider<Task<CIActivityStatus>>>(),
-                new[] { Mock.Of<IBuildStatusProvider<Task<CIBuildStatus>>>() }
-            );
-            action.Should().ThrowExactly<ArgumentOutOfRangeException>();
-        }
-
-
-        [Fact]
-        public void Constructor_EmptyBuildStatusProviders_Throws()
-        {
-            Action action = () => new HueUpdaterService(
-                Mock.Of<IHostApplicationLifetime>(),
-                Mock.Of<ILogger<HueUpdaterService>>(),
-                Mock.Of<IResolver<CIActivityStatus[], CIActivityStatus>>(),
-                Mock.Of<IResolver<CIBuildStatus[], CIBuildStatus>>(),
-                Mock.Of<IResolver<CIStatusChangeQuery, HueAlert>>(),
-                Mock.Of<IResolver<CIStatus, HueColor>>(),
-                Mock.Of<IHueInvoker>(),
-                Mock.Of<ISerializer>(),
-                Mock.Of<IResolver<ScheduleQuery, bool>>(),
-                Mock.Of<IResolver<DateTime, (string Name, TimeRangeSettings Times)>>(),
-                new[] { Mock.Of<IActivityStatusProvider<Task<CIActivityStatus>>>() },
-                Array.Empty<IBuildStatusProvider<Task<CIBuildStatus>>>()
-            );
-            action.Should().ThrowExactly<ArgumentOutOfRangeException>();
-        }
-
-
-        [Fact]
-        public async Task StartAsync_CalledExpected()
+        public async Task StartAsync_CallsExpected()
         {
             var appLifetimeMock = new Mock<IHostApplicationLifetime>();
             var loggerMock = Mock.Of<ILogger<HueUpdaterService>>();
-            var activityStatusResolverMock = Mock.Of<IResolver<CIActivityStatus[], CIActivityStatus>>();
-            var buildStatusResolverMock = Mock.Of<IResolver<CIBuildStatus[], CIBuildStatus>>();
-            var hueAlertResolverMock = Mock.Of<IResolver<CIStatusChangeQuery, HueAlert>>();
-            var hueColorResolverMock = Mock.Of<IResolver<CIStatus, HueColor>>();
-            var hueInvokerMock = Mock.Of<IHueInvoker>();
-            var serializerMock = Mock.Of<ISerializer>();
+            var ciStatusUrls = new List<string>() { "http://huebridge.example/" };
+            var ciStatusReducerMock = Mock.Of<IResolver<CIStatus[], CIStatus>>();
+            var hueAlertResolverMock = Mock.Of<IResolver<LightStatusChangeQuery, HueAlert>>();
+            var hueUpdaterItems = new List<HueUpdaterItem>() { new HueUpdaterItem(Mock.Of<IHueInvoker>(), Mock.Of<IResolver<LightColor, HueColor>>()) };
+            var lightColorResolverMock = Mock.Of<IResolver<CIStatus, LightColor>>();
+            var serializerMock = Mock.Of<ISerializer<LightStatus>>();
             var scheduleApplicabilityResolverMock = Mock.Of<IResolver<ScheduleQuery, bool>>();
-            var scheduleResolverMock = Mock.Of<IResolver<DateTime, (string Name, TimeRangeSettings Times)>>();
-            var activityStatusProviderMock = Mock.Of<IActivityStatusProvider<Task<CIActivityStatus>>>();
-            var buildStatusProviderMock = Mock.Of<IBuildStatusProvider<Task<CIBuildStatus>>>();
+            var scheduleResolverMock = Mock.Of<IResolver<DateTime, (string Name, ScheduleSettings Schedule)>>();
 
             appLifetimeMock.Setup(m => m.StopApplication()).Verifiable();
 
             var sut = new HueUpdaterService(
                 appLifetimeMock.Object,
                 loggerMock,
-                activityStatusResolverMock,
-                buildStatusResolverMock,
+                ciStatusUrls,
+                ciStatusReducerMock,
                 hueAlertResolverMock,
-                hueColorResolverMock,
-                hueInvokerMock,
+                hueUpdaterItems,
+                lightColorResolverMock,
                 serializerMock,
                 scheduleApplicabilityResolverMock,
-                scheduleResolverMock,
-                new[] { activityStatusProviderMock },
-                new[] { buildStatusProviderMock }
+                scheduleResolverMock
             );
 
             Func<Task> action = async () => await sut.StartAsync(new CancellationToken());
@@ -353,128 +285,113 @@ namespace HueUpdater.Services
 
 
         [Fact]
-        public async Task UpdateHueEndpointAsync_ScheduleApplicable_CalledExpected()
+        public async Task ProcessItemsAsync_ScheduleApplicable_CallsExpected()
         {
             var appLifetimeMock = Mock.Of<IHostApplicationLifetime>();
             var loggerMock = Mock.Of<ILogger<HueUpdaterService>>();
-            var activityStatusResolverMock = new Mock<IResolver<CIActivityStatus[], CIActivityStatus>>();
-            var buildStatusResolverMock = new Mock<IResolver<CIBuildStatus[], CIBuildStatus>>();
-            var hueAlertResolverMock = new Mock<IResolver<CIStatusChangeQuery, HueAlert>>();
-            var hueColorResolverMock = new Mock<IResolver<CIStatus, HueColor>>();
+            var ciStatusUrls = new List<string>() { "http://huebridge.example/" };
+            var ciStatusReducerMock = new Mock<IResolver<CIStatus[], CIStatus>>();
+            var hueAlertResolverMock = new Mock<IResolver<LightStatusChangeQuery, HueAlert>>();
             var hueInvokerMock = new Mock<IHueInvoker>();
-            var serializerMock = new Mock<ISerializer>();
+            var hueColorFactoryMock = new Mock<IResolver<LightColor, HueColor>>();
+            var hueUpdaterItems = new List<HueUpdaterItem>() { new HueUpdaterItem(hueInvokerMock.Object, hueColorFactoryMock.Object) };
+            var lightColorResolverMock = new Mock<IResolver<CIStatus, LightColor>>();
+            var serializerMock = new Mock<ISerializer<LightStatus>>();
             var scheduleApplicabilityResolverMock = new Mock<IResolver<ScheduleQuery, bool>>();
-            var scheduleResolverMock = new Mock<IResolver<DateTime, (string Name, TimeRangeSettings Times)>>();
-            var activityStatusProviderMock = new Mock<IActivityStatusProvider<Task<CIActivityStatus>>>();
-            var buildStatusProviderMock = new Mock<IBuildStatusProvider<Task<CIBuildStatus>>>();
-
-            activityStatusResolverMock.Setup(m => m.Resolve(It.IsAny<CIActivityStatus[]>())).Returns(new CIActivityStatus()).Verifiable();
-            buildStatusResolverMock.Setup(m => m.Resolve(It.IsAny<CIBuildStatus[]>())).Returns(new CIBuildStatus()).Verifiable();
-            hueAlertResolverMock.Setup(m => m.Resolve(It.IsAny<CIStatusChangeQuery>())).Returns(new HueAlert()).Verifiable();
-            hueColorResolverMock.Setup(m => m.Resolve(It.IsAny<CIStatus>())).Returns(new HueColor()).Verifiable();
-            hueInvokerMock.Setup(m => m.PutAsync(It.IsAny<HueColor>())).ReturnsAsync(new ExpandoObject()).Verifiable();
-            hueInvokerMock.Setup(m => m.PutAsync(It.IsAny<HueAlert>())).ReturnsAsync(new ExpandoObject()).Verifiable();
-            hueInvokerMock.Setup(m => m.PutAsync(It.IsAny<HuePower>())).ReturnsAsync(new ExpandoObject()).Verifiable();
-            serializerMock.Setup(m => m.Deserialize<CIStatus>()).Returns(new CIStatus()).Verifiable();
-            serializerMock.Setup(m => m.Serialize(It.IsAny<CIStatus>())).Verifiable();
-            scheduleApplicabilityResolverMock.Setup(m => m.Resolve(It.IsAny<ScheduleQuery>())).Returns(true).Verifiable();
-            scheduleResolverMock.Setup(m => m.Resolve(It.IsAny<DateTime>())).Returns(("", new TimeRangeSettings())).Verifiable();
-            activityStatusProviderMock.Setup(m => m.GetActivityStatus()).ReturnsAsync(new CIActivityStatus()).Verifiable();
-            buildStatusProviderMock.Setup(m => m.GetBuildStatus()).ReturnsAsync(new CIBuildStatus()).Verifiable();
+            var scheduleResolverMock = new Mock<IResolver<DateTime, (string Name, ScheduleSettings Schedule)>>();
 
             var sut = new HueUpdaterService(
                 appLifetimeMock,
                 loggerMock,
-                activityStatusResolverMock.Object,
-                buildStatusResolverMock.Object,
+                ciStatusUrls,
+                ciStatusReducerMock.Object,
                 hueAlertResolverMock.Object,
-                hueColorResolverMock.Object,
-                hueInvokerMock.Object,
+                hueUpdaterItems,
+                lightColorResolverMock.Object,
                 serializerMock.Object,
                 scheduleApplicabilityResolverMock.Object,
-                scheduleResolverMock.Object,
-                new[] { activityStatusProviderMock.Object },
-                new[] { buildStatusProviderMock.Object }
+                scheduleResolverMock.Object
             );
 
-            await sut.UpdateHueEndpointAsync();
+            ciStatusReducerMock.Setup(m => m.Resolve(It.IsAny<CIStatus[]>())).Returns(new CIStatus()).Verifiable();
+            hueAlertResolverMock.Setup(m => m.Resolve(It.IsAny<LightStatusChangeQuery>())).Returns(new HueAlert()).Verifiable();
+            hueInvokerMock.Setup(m => m.PutAsync(It.IsAny<HueColor>())).Verifiable();
+            hueInvokerMock.Setup(m => m.PutAsync(It.IsAny<HuePower>())).Verifiable();
+            hueColorFactoryMock.Setup(m => m.Resolve(It.IsAny<LightColor>())).Verifiable();
+            lightColorResolverMock.Setup(m => m.Resolve(It.IsAny<CIStatus>())).Returns(new LightColor()).Verifiable();
+            serializerMock.Setup(m => m.Deserialize()).Returns(new LightStatus()).Verifiable();
+            serializerMock.Setup(m => m.Serialize(It.IsAny<LightStatus>())).Verifiable();
+            scheduleApplicabilityResolverMock.Setup(m => m.Resolve(It.IsAny<ScheduleQuery>())).Returns(true).Verifiable();
+            scheduleResolverMock.Setup(m => m.Resolve(It.IsAny<DateTime>())).Returns(("", new ScheduleSettings())).Verifiable();
 
-            activityStatusResolverMock.Verify(m => m.Resolve(It.IsAny<CIActivityStatus[]>()), Times.Once);
-            buildStatusResolverMock.Verify(m => m.Resolve(It.IsAny<CIBuildStatus[]>()), Times.Once);
-            hueAlertResolverMock.Verify(m => m.Resolve(It.IsAny<CIStatusChangeQuery>()), Times.Once);
-            hueColorResolverMock.Verify(m => m.Resolve(It.IsAny<CIStatus>()), Times.Once);
+            using var httpTest = new HttpTest(); // Causes Flurl calls to be faked.
+            await sut.ProcessItemsAsync();
+
+            ciStatusReducerMock.Verify(m => m.Resolve(It.IsAny<CIStatus[]>()), Times.Once);
+            hueAlertResolverMock.Verify(m => m.Resolve(It.IsAny<LightStatusChangeQuery>()), Times.Once);
             hueInvokerMock.Verify(m => m.PutAsync(It.IsAny<HueColor>()), Times.Once);
-            hueInvokerMock.Verify(m => m.PutAsync(It.IsAny<HueAlert>()), Times.Once);
             hueInvokerMock.Verify(m => m.PutAsync(It.IsAny<HuePower>()), Times.Never);
-            serializerMock.Verify(m => m.Deserialize<CIStatus>(), Times.Once);
-            serializerMock.Verify(m => m.Serialize(It.IsAny<CIStatus>()), Times.Once);
+            hueColorFactoryMock.Verify(m => m.Resolve(It.IsAny<LightColor>()), Times.Once);
+            lightColorResolverMock.Verify(m => m.Resolve(It.IsAny<CIStatus>()), Times.Once);
+            serializerMock.Verify(m => m.Deserialize(), Times.Once);
+            serializerMock.Verify(m => m.Serialize(It.IsAny<LightStatus>()), Times.Once);
             scheduleApplicabilityResolverMock.Verify(m => m.Resolve(It.IsAny<ScheduleQuery>()), Times.Once);
             scheduleResolverMock.Verify(m => m.Resolve(It.IsAny<DateTime>()), Times.Once);
-            activityStatusProviderMock.Verify(m => m.GetActivityStatus(), Times.Once);
-            buildStatusProviderMock.Verify(m => m.GetBuildStatus(), Times.Once);
         }
 
 
         [Fact]
-        public async Task UpdateHueEndpointAsync_ScheduleNotApplicable_CalledExpected()
+        public async Task ProcessItemsAsync_ScheduleNotApplicable_CallsExpected()
         {
             var appLifetimeMock = Mock.Of<IHostApplicationLifetime>();
             var loggerMock = Mock.Of<ILogger<HueUpdaterService>>();
-            var activityStatusResolverMock = new Mock<IResolver<CIActivityStatus[], CIActivityStatus>>();
-            var buildStatusResolverMock = new Mock<IResolver<CIBuildStatus[], CIBuildStatus>>();
-            var hueAlertResolverMock = new Mock<IResolver<CIStatusChangeQuery, HueAlert>>();
-            var hueColorResolverMock = new Mock<IResolver<CIStatus, HueColor>>();
+            var ciStatusUrls = new List<string>() { "http://huebridge.example/" };
+            var ciStatusReducerMock = new Mock<IResolver<CIStatus[], CIStatus>>();
+            var hueAlertResolverMock = new Mock<IResolver<LightStatusChangeQuery, HueAlert>>();
             var hueInvokerMock = new Mock<IHueInvoker>();
-            var serializerMock = new Mock<ISerializer>();
+            var hueColorFactoryMock = new Mock<IResolver<LightColor, HueColor>>();
+            var hueUpdaterItems = new List<HueUpdaterItem>() { new HueUpdaterItem(hueInvokerMock.Object, hueColorFactoryMock.Object) };
+            var lightColorResolverMock = new Mock<IResolver<CIStatus, LightColor>>();
+            var serializerMock = new Mock<ISerializer<LightStatus>>();
             var scheduleApplicabilityResolverMock = new Mock<IResolver<ScheduleQuery, bool>>();
-            var scheduleResolverMock = new Mock<IResolver<DateTime, (string Name, TimeRangeSettings Times)>>();
-            var activityStatusProviderMock = new Mock<IActivityStatusProvider<Task<CIActivityStatus>>>();
-            var buildStatusProviderMock = new Mock<IBuildStatusProvider<Task<CIBuildStatus>>>();
-
-            activityStatusResolverMock.Setup(m => m.Resolve(It.IsAny<CIActivityStatus[]>())).Returns(new CIActivityStatus()).Verifiable();
-            buildStatusResolverMock.Setup(m => m.Resolve(It.IsAny<CIBuildStatus[]>())).Returns(new CIBuildStatus()).Verifiable();
-            hueAlertResolverMock.Setup(m => m.Resolve(It.IsAny<CIStatusChangeQuery>())).Returns(new HueAlert()).Verifiable();
-            hueColorResolverMock.Setup(m => m.Resolve(It.IsAny<CIStatus>())).Returns(new HueColor()).Verifiable();
-            hueInvokerMock.Setup(m => m.PutAsync(It.IsAny<HueColor>())).ReturnsAsync(new ExpandoObject()).Verifiable();
-            hueInvokerMock.Setup(m => m.PutAsync(It.IsAny<HueAlert>())).ReturnsAsync(new ExpandoObject()).Verifiable();
-            hueInvokerMock.Setup(m => m.PutAsync(It.IsAny<HuePower>())).ReturnsAsync(new ExpandoObject()).Verifiable();
-            serializerMock.Setup(m => m.Deserialize<CIStatus>()).Returns(new CIStatus()).Verifiable();
-            serializerMock.Setup(m => m.Serialize(It.IsAny<CIStatus>())).Verifiable();
-            scheduleApplicabilityResolverMock.Setup(m => m.Resolve(It.IsAny<ScheduleQuery>())).Returns(false).Verifiable();
-            scheduleResolverMock.Setup(m => m.Resolve(It.IsAny<DateTime>())).Returns(("", new TimeRangeSettings())).Verifiable();
-            activityStatusProviderMock.Setup(m => m.GetActivityStatus()).ReturnsAsync(new CIActivityStatus()).Verifiable();
-            buildStatusProviderMock.Setup(m => m.GetBuildStatus()).ReturnsAsync(new CIBuildStatus()).Verifiable();
+            var scheduleResolverMock = new Mock<IResolver<DateTime, (string Name, ScheduleSettings Schedule)>>();
 
             var sut = new HueUpdaterService(
                 appLifetimeMock,
                 loggerMock,
-                activityStatusResolverMock.Object,
-                buildStatusResolverMock.Object,
+                ciStatusUrls,
+                ciStatusReducerMock.Object,
                 hueAlertResolverMock.Object,
-                hueColorResolverMock.Object,
-                hueInvokerMock.Object,
+                hueUpdaterItems,
+                lightColorResolverMock.Object,
                 serializerMock.Object,
                 scheduleApplicabilityResolverMock.Object,
-                scheduleResolverMock.Object,
-                new[] { activityStatusProviderMock.Object },
-                new[] { buildStatusProviderMock.Object }
+                scheduleResolverMock.Object
             );
 
-            await sut.UpdateHueEndpointAsync();
+            ciStatusReducerMock.Setup(m => m.Resolve(It.IsAny<CIStatus[]>())).Returns(new CIStatus()).Verifiable();
+            hueAlertResolverMock.Setup(m => m.Resolve(It.IsAny<LightStatusChangeQuery>())).Returns(new HueAlert()).Verifiable();
+            hueInvokerMock.Setup(m => m.PutAsync(It.IsAny<HueColor>())).Verifiable();
+            hueInvokerMock.Setup(m => m.PutAsync(It.IsAny<HuePower>())).Verifiable();
+            hueColorFactoryMock.Setup(m => m.Resolve(It.IsAny<LightColor>())).Verifiable();
+            lightColorResolverMock.Setup(m => m.Resolve(It.IsAny<CIStatus>())).Returns(new LightColor()).Verifiable();
+            serializerMock.Setup(m => m.Deserialize()).Returns(new LightStatus()).Verifiable();
+            serializerMock.Setup(m => m.Serialize(It.IsAny<LightStatus>())).Verifiable();
+            scheduleApplicabilityResolverMock.Setup(m => m.Resolve(It.IsAny<ScheduleQuery>())).Returns(false).Verifiable();
+            scheduleResolverMock.Setup(m => m.Resolve(It.IsAny<DateTime>())).Returns(("", new ScheduleSettings())).Verifiable();
 
-            activityStatusResolverMock.Verify(m => m.Resolve(It.IsAny<CIActivityStatus[]>()), Times.Once);
-            buildStatusResolverMock.Verify(m => m.Resolve(It.IsAny<CIBuildStatus[]>()), Times.Once);
-            hueAlertResolverMock.Verify(m => m.Resolve(It.IsAny<CIStatusChangeQuery>()), Times.Never);
-            hueColorResolverMock.Verify(m => m.Resolve(It.IsAny<CIStatus>()), Times.Never);
+            await sut.ProcessItemsAsync();
+
+            ciStatusReducerMock.Verify(m => m.Resolve(It.IsAny<CIStatus[]>()), Times.Never);
+            hueAlertResolverMock.Verify(m => m.Resolve(It.IsAny<LightStatusChangeQuery>()), Times.Once);
             hueInvokerMock.Verify(m => m.PutAsync(It.IsAny<HueColor>()), Times.Never);
-            hueInvokerMock.Verify(m => m.PutAsync(It.IsAny<HueAlert>()), Times.Never);
             hueInvokerMock.Verify(m => m.PutAsync(It.IsAny<HuePower>()), Times.Once);
-            serializerMock.Verify(m => m.Deserialize<CIStatus>(), Times.Once);
-            serializerMock.Verify(m => m.Serialize(It.IsAny<CIStatus>()), Times.Once);
+            hueColorFactoryMock.Verify(m => m.Resolve(It.IsAny<LightColor>()), Times.Never);
+            lightColorResolverMock.Verify(m => m.Resolve(It.IsAny<CIStatus>()), Times.Never);
+            serializerMock.Verify(m => m.Deserialize(), Times.Once);
+            serializerMock.Verify(m => m.Serialize(It.IsAny<LightStatus>()), Times.Once);
             scheduleApplicabilityResolverMock.Verify(m => m.Resolve(It.IsAny<ScheduleQuery>()), Times.Once);
             scheduleResolverMock.Verify(m => m.Resolve(It.IsAny<DateTime>()), Times.Once);
-            activityStatusProviderMock.Verify(m => m.GetActivityStatus(), Times.Once);
-            buildStatusProviderMock.Verify(m => m.GetBuildStatus(), Times.Once);
         }
 
     }
