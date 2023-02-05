@@ -1,7 +1,7 @@
 
 # HueUpdater
 
-Updates a Hue API compatible light based on the status of projects in a CI system.
+Controls Hue API compatible lights based on the status of projects in CI systems monitored by [CIStatusAggregator](https://github.com/jorgeyanesdiez/CIStatusAggregator).
 
 ![Stable, Stable & Building, Broken, Broken & Building](https://i.imgur.com/YuEo7Ak.jpg)
 Stable | Stable & Building | Broken | Broken & Building
@@ -9,193 +9,283 @@ Stable | Stable & Building | Broken | Broken & Building
 
 
 
-
-
+<br><br>
 ## Build status
 
 AppVeyor status:  [![AppVeyor status](https://ci.appveyor.com/api/projects/status/9xebpi3ve7ujf2vb/branch/main?svg=true)](https://ci.appveyor.com/project/jorgeyanesdiez/HueUpdater)
 
+Sonarcloud status:  [![Sonarcloud status](https://sonarcloud.io/api/project_badges/measure?project=jorgeyanesdiez_HueUpdater&metric=alert_status)](https://sonarcloud.io/summary/overall?id=jorgeyanesdiez_HueUpdater)
 
 
 
 
-
+<br><br>
 ## Motivation
 
 I use lamps at work to give my teams instant feedback about the status of multiple projects tracked by our CI systems.
 
 Multiple copies of this application manage lamps with lights that are connected to a Hue bridge.
+The information required to determine the color of each light is obtained from [CIStatusAggregator](https://github.com/jorgeyanesdiez/CIStatusAggregator).
 
-The information that determines the color of each light is obtained with [CIStatusAggregator](https://github.com/jorgeyanesdiez/CIStatusAggregator).
-
-Based on a defined schedule and a calendar, it then turns the lamp on/off and sets the light color accordingly.
-
+Based on a defined schedule and a calendar, the program turns the lamps on/off and sets the light colors accordingly.
 
 
 
 
-
+<br><br>
 ## Usage prerequisites
 
-* Operational Hue hub, Hue lights, CI systems and related networking equipment.
+* An operational instance of [CIStatusAggregator](https://github.com/jorgeyanesdiez/CIStatusAggregator) and access to the files it generates via a web server.
 
-* An API key to control the Hue light.
+* Operational Hue lights, and related networking equipment.
 
-* Basic JSON knowledge to edit the settings file.
+* An API key to control the Hue lights.
 
-* Write permission on a local folder to save the file that keeps track of the lamp's last status.
+* Basic JSON and Regex knowledge to edit the settings file.
 
-* User credentials for the Jenkins instance, when the Jenkins instance is password protected.
-
-
+* Write permission on a local folder to save the file that keeps track of the lamps' last status.
 
 
 
 
+<br><br>
 ## Deployment
 
-Unpack the release file wherever you want on the target system. I suggest *C:\HueUpdater*
-Open the *appsettings.json* file with a plain text editor and carefully tweak the values to match your needs.
-Here's an attempt to explain each one, although I hope most are self explanatory from the provided sample file.
+Unpack the release file wherever you want on the target system. I suggest *C:\HueUpdater* on Windows or */opt/HueUpdater* on Linux.
 
+Open the *appsettings.json* file with a plain text editor and carefully tweak the sample values in the *HueUpdater* section to match your needs.
 
+| :boom: NOTE            |
+|:-----------------------|
+| Be careful to follow JSON formatting rules, or the program will not work correctly |
 
-* **Persistence** -> ***LastStatusFilePath***
-
-  *HueUpdater* keeps track of the last status of the lamp by writing it to a file. This property determines the location of that file.
-  
-  It can be a full or relative path. At least a file name must be specified. The default value may be used, but it assumes the user that runs the application has write permissions on the folder that contains the application.
-  
-  If you plan on using [TrayIcon](https://github.com/jorgeyanesdiez/TrayIcon), set this value to a path and file served by a web server.
-  
-  If you use *HueUpdater* on the same server as your Jenkins instance, the easiest way is to write this to *userContent/last-status.json* under your Jenkins home.
-
-
-
-* **Hue** -> ***Endpoint***
-
-  API endpoint of the light to control.
-  
-  You will know the IP and API key once you've completed your Hue API setup.
-
-  Example: `http://192.168.0.1/api/0123456789012345678901234567890123456789/lights/1/state`
-
-
-
-* **Jenkins** -> ***BaseEndpoint***
-
-  Base URL of your Jenkins instance.
-
-  Example: `https://jenkins-server.mycompany.com`
-
-
-
-* **Jenkins** -> ***JobNameRegexFilter***
-
-  Sometimes it's desirable to ignore the failure of some jobs without creating a view in Jenkins.
-  
-  This optional regular expression acts as a job name filter. May be left empty.
-
-  Example: `Project abc`
-
-
-
-* **Jenkins** -> ***User***
-
-  If your Jenkins instance is password protected, set this to your username.
-  
-  The user name to authenticate requests to Jenkins with.
-
-
-
-* **Jenkins** -> ***Password***
-
-  If your Jenkins instance is password protected, set this to your password.
-  
-  The password to authenticate requests to Jenkins with.
+Here's an attempt to explain each value:
 
 
 
 
+* **AppearancePresets**
 
-You will likely want to customize when the lamp turns on and off.
+  Every element in this section defines a named preset that controls the look of one or more lights. Bulbs from different manufacturers usually look different, so this allows the configuration of each light type individually to achieve the desired look.
 
-The calendar and schedules allow you to do so, and should be modified to match your needs.
+  <br>
 
-* The section **Operation** -> **Schedules** defines time intervals of each day during which the light is on.
-
-  Example:
-  ```json
-  "2-Regular" : { "Start": "08:45", "Finish": "19:15" }
+  ```javascript
+  "HueUpdater": {
+    "AppearancePresets": {
+      // appearance preset definitions go in here
+    }
+  }
   ```
 
-  This defines a schedule called *2-Regular* that turns the light on at 8:45 in the morning and turns it off at 19:15 in the evening.
+  <br>
 
+* **AppearancePresets** -> ***ArbitraryName***:
 
+  Set this to any value you want, but don't repeat names within this section. Using the name of the light manufacturer is recommended. In the example below, the chosen name was *Philips*.
 
-* The section **Operation** -> **Calendar** -> **Defaults** defines date intervals.
+* **AppearancePresets** -> **ArbitraryName** -> ***Sat***:
 
-  To assign a schedule to a calendar, the keys in this section must match the keys in the **Operation** -> **Schedules** section.
+  Value that defines the color saturation. Must be between 0 and 254.
 
-  Example:
+* **AppearancePresets** -> **ArbitraryName** -> ***Bri***:
 
-  ```json
-  "2-Regular": [
-    { "Start": "2023/01/05", "Finish": "2023/01/05" },
-    { "Start": "2023/02/01", "Finish": "2023/02/20" }
-  ]
+  Value that defines the brightness of the light. Must be between 0 and 254.
+
+* **AppearancePresets** -> **ArbitraryName** -> ***BlueHue***:
+
+  Value that defines the color blue for this preset. Must be between 0 and 65535.
+
+* **AppearancePresets** -> **ArbitraryName** -> ***GreenHue***:
+
+  Value that defines the color green for this preset. Must be between 0 and 65535.
+
+* **AppearancePresets** -> **ArbitraryName** -> ***RedHue***:
+
+  Value that defines the color red for this preset. Must be between 0 and 65535.
+
+* **AppearancePresets** -> **ArbitraryName** -> ***YellowHue***:
+
+  Value that defines the color yellow for this preset. Must be between 0 and 65535.
+
+  The values for colors in the Hue API are not straight forward. For more information, refer to the official docs at *https://developers.meethue.com/develop/get-started-2/core-concepts/*
+
+  <br>
+
+  ```javascript
+  "AppearancePresets": {
+    "Philips": {
+      "Sat": 254,
+      "Bri": 50,
+      "BlueHue": 44000,
+      "GreenHue": 26000,
+      "RedHue": 65000,
+      "YellowHue": 10000
+    }
+  }
   ```
 
-  This defines a calendar that applies the *2-Regular* schedule during the fifth day of year 2023, and for the first 20 days in February of year 2023.
+  <br>
 
+* ***StatusUrls***
 
+  This is a list of one or more URLs that point to files generated by *CIStatusAggregator*
 
-* The section **Operation** -> **Calendar** -> **DayOverrides** defines schedule overrides based on the day of the week.
+  <br>
 
-  Example:
-  ```json
-  "1-Off": [ "Saturday", "Sunday" ]
+  ```javascript
+  "HueUpdater": {
+    "StatusUrls": [
+      "https://cistatusaggregator.example/global.json",
+      "https://cistatusaggregator.example/aux.json"
+    ]
+  }
   ```
 
-  This defines an override that causes the schedule to be *1-Off* on Saturdays and Sundays. Following the previous examples, this would mean that on days February 4, 5, 11, 12, 18, 19, 25 and 26 of year 2023, the applicable schedule will be *1-Off* and not *2-Regular*.
+  <br>
 
+* **HueLights**
 
+  This is a list of nameless Hue endpoint definitions. Each entry defines a light to be updated and its properties. It is assumed all the lights defined in this section represent the status of the same system. 
+  
+  **NOTE:** You can run multiple copies of this application in different locations with varying configuration files if you need to monitor separate systems.
 
-* The values in the **Operation** -> **Calendar** -> **DayOverrides** section must be valid days in English.
+  <br>
 
-
-
-* The section **Operation** -> **Calendar** -> **DayOverridesExclusions** defines schedules that should not be overridden.
-
-  Example:
-
-  ```json
-  "DayOverridesExclusions": [ "1-Off" ]
+  ```javascript
+  "HueUpdater": {
+    "HueLights": {
+      // endpoint definitions go in here
+    }
+  }
   ```
 
-  This declares that, if the default schedule is 1-Off, then it should not be overridden.
+  <br>
 
-* The names of the keys in all sections must be chosen carefully, since matches will be resolved in alphabetical order.
+* **HueLights** -> ***AppearancePreset***
+
+  The appearance preset must be defined in the *AppearancePresets* section, or it will default to the first preset.
+
+* **HueLights** -> ***Endpoint***
+
+  Fully valid Hue API URL to the light to be updated. You will know the IP/hostname and API key once you've completed your Hue API setup.
+
+  <br>
+
+  ```javascript
+  "HueLights": {
+    {
+      "AppearancePreset": "Philips",
+      "Endpoint": "http://huebridge.example/api/0123456789012345678901234567890123456789/lights/1/state"
+    }
+  }
+  ```
+
+  <br>
+
+* **Persistence** -> ***LightStatusFilePath***
+
+  Full or relative path to a file used to persist the collective status of the lights.
+
+  <br>
+
+  ```javascript
+  "HueUpdater": {
+    "Persistence": {
+      "LightStatusFilePath": "light-status.json"
+    }
+  }
+  ```
+
+  <br>
+
+* **Workplan**
+
+  Defines when the lamp turns on and off. It contains multiple sections to do so, explained below.
+
+  <br>
+
+  ```javascript
+  "HueUpdater": {
+    "Workplan": {
+      "Schedule": { /* The definition of the schedule goes here. */ }
+      "Calendar": { /* The definition of the calendar goes here. */ }
+      "Overrides": { /* The definition of the schedule overrides by day of the week goes here. */ }
+    }
+  }
+  ```
+  
+  <br>
+
+* **Workplan** -> ***Schedule***
+
+  Contains named entries that define the working hours for the lamps. Each entry has a priority that is used to solve ambiguities between the ***Calendar*** and the ***Overrides*** sections. The schedule with the lowest number will be given the highest priority. For example, a schedule with priority 1 is always chosen over a schedule with priority 4.
+
+  The following example defines two schedules. The *Off* schedule starts and finishes at 00:00, so the lamp never turns on. The *Regular* schedule stipulates the lights should turn on at 08:15 in the morning and off at 19:15 in the evening. The priority of the *Off* schedule ensures it is always chosen over the *Regular* schedule.
+
+  <br>
+
+  ```javascript
+  "Workplan": {
+    "Schedule": {
+      "Off":     { "Priority": 1, "Hours": { "Start": "00:00", "Finish": "00:00" } }
+      "Regular": { "Priority": 4, "Hours": { "Start": "08:15", "Finish": "19:15" } }
+    }
+  }
+  ```
+  
+  <br>
+
+* **Workplan** -> ***Calendar***
+
+  Contains named entries that themselves contain a list of date ranges. The name must coincide with one of the schedules defined in the ***Schedules*** section. This is the way that schedules are mapped to days of the year.
+
+  The following example shows how to map three days to the *Off* schedule, and the whole month of May to the *Regular* schedule.
+
+  <br>
+
+  ```javascript
+  "Workplan": {
+    "Calendar": {
+      "Off": [
+        { "Start": "2023/01/06", "Finish": "2023/01/06" },
+        { "Start": "2023/04/06", "Finish": "2023/04/07" }
+      ],
+      "Regular": [
+        { "Start": "2023/05/01", "Finish": "2023/05/31" }
+      ]
+    }
+  }
+  ```
+  
+  <br>
+
+* **Workplan** -> ***Overrides***
+
+  Allows mapping day names to schedules. This section is meant to force a schedule with higher priority on certain days, like weekends.
+
+  The following example sets the schedule *Off* for Saturdays and Sundays. If you combine all the examples in the file so far, May will have all its days assigned to the *Regular* schedule, except for Saturday and Sunday which will resolve to *Off*
+  
+  <br>
+
+  ```javascript
+  "Workplan": {
+    "Overrides": {
+      "Saturday": "Off",
+      "Sunday":   "Off"
+    }
+  }
+  ```
+  
+  <br>
+
+Finally, use your preferred scheduling method to run this application frequently.
+I usually run it every minute with the Windows Task Scheduler or with a systemd timer.
 
 
 
-* **REMEMBER:** The *appsettings.json* file must remain valid at all times. Use valid JSON only.
 
-
-
-
-
-Finally, use your Windows Task Scheduler or alternative scheduling method to run this application frequently.
-
-I usually run it every minute.
-
-That's all there is to it.
-
-
-
-
-
-
+<br><br>
 ## License
 
 This project is licensed under the MIT License - see the [LICENSE.md](LICENSE.md) file for details
