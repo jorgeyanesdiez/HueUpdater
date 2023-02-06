@@ -34,12 +34,12 @@ namespace HueUpdater.Services
         /// <inheritdoc/>
         public string Resolve(string[] input)
         {
-            var lookup = input.Select(scheduleName => new
+            var lookup = input.Where(i => i != null).Select(scheduleName => new
             {
                 Name = scheduleName,
                 Priority = Schedules.ContainsKey(scheduleName)
-                    ? Schedules[scheduleName].Priority
-                    : uint.MaxValue
+                ? Schedules[scheduleName].Priority
+                : uint.MaxValue
             });
 
             var result = lookup.MinBy(schedule => schedule.Priority).Name;

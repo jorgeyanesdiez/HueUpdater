@@ -33,7 +33,8 @@ namespace HueUpdater.Services
         [InlineData("ScheduleWithPriority3", "ScheduleWithPriority3", "ScheduleWithPriority3")]
         [InlineData("ScheduleWithPriority1", "UndefinedSchedule", "ScheduleWithPriority1")]
         [InlineData("UndefinedSchedule", "UndefinedSchedule", "UndefinedSchedule")]
-        public void Resolve_ValidSchedules_IsExpected(string expected, params string[] scheduleNames)
+        [InlineData("UndefinedSchedule", "UndefinedSchedule", null)]
+        public void Resolve_Schedules_IsExpected(string expected, params string[] scheduleNames)
         {
             var sut = new ScheduleNameResolver(Schedules);
             var result = sut.Resolve(scheduleNames);
