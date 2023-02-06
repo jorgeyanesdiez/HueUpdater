@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Diagnostics.CodeAnalysis;
 using FluentAssertions;
 using HueUpdater.Abstractions;
 using HueUpdater.Settings;
@@ -39,7 +38,7 @@ namespace HueUpdater.Services
 
 
         [Fact]
-        public void Resolve_Schedules_IsExpected()
+        public void Resolve_CallsExpected()
         {
             var sampleScheduleName = "sample_schedule";
             var sampleSchedule = new Dictionary<string, ScheduleSettings>() { { sampleScheduleName, new ScheduleSettings() } };

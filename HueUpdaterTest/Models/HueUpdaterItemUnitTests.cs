@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Diagnostics.CodeAnalysis;
 using FluentAssertions;
 using HueUpdater.Abstractions;
 using HueUpdater.Dtos;
