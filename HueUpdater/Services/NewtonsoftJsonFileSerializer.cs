@@ -7,9 +7,9 @@ namespace HueUpdater.Services
 {
 
     /// <summary>
-    /// File serializer using Json.Net
+    /// File serializer using Newtonsoft.Json
     /// </summary>
-    public class JsonNetFileSerializer<TObject>
+    public class NewtonsoftJsonFileSerializer<TObject>
         : ISerializer<TObject>
           where TObject : new()
     {
@@ -21,15 +21,23 @@ namespace HueUpdater.Services
 
 
         /// <summary>
+        /// The settings used during serialization and deserialization.
+        /// </summary>
+        private JsonSerializerSettings Settings { get; }
+
+
+        /// <summary>
         /// Main constructor.
         /// </summary>
         /// <param name="filePath">The value for the <see cref="FilePath"/> property.</param>
+        /// <param name="settings">The value for the <see cref="Settings"/> property.</param>
         /// <exception cref="ArgumentNullException">If a required dependency is not provided.</exception>
         /// <exception cref="ArgumentOutOfRangeException">If a required dependency is not valid.</exception>
-        public JsonNetFileSerializer(string filePath)
+        public NewtonsoftJsonFileSerializer(string filePath, JsonSerializerSettings settings)
         {
             FilePath = filePath ?? throw new ArgumentNullException(nameof(filePath));
             if (string.IsNullOrWhiteSpace(filePath)) { throw new ArgumentOutOfRangeException(nameof(filePath)); }
+            Settings = settings ?? throw new ArgumentNullException(nameof(settings));
         }
 
 
@@ -41,7 +49,7 @@ namespace HueUpdater.Services
             {
                 using var reader = new StreamReader(FilePath);
                 var contents = reader.ReadToEnd();
-                result = JsonConvert.DeserializeObject<TObject>(contents);
+                result = JsonConvert.DeserializeObject<TObject>(contents, Settings);
             }
             catch (Exception e) when (e is FileNotFoundException || e is JsonReaderException)
             {
@@ -54,7 +62,7 @@ namespace HueUpdater.Services
         /// <inheritdoc/>
         public void Serialize(TObject input)
         {
-            var contents = JsonConvert.SerializeObject(input);
+            var contents = JsonConvert.SerializeObject(input, Settings);
             using var writer = new StreamWriter(FilePath);
             writer.Write(contents);
         }

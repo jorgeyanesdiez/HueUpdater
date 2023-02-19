@@ -14,8 +14,6 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
-using Newtonsoft.Json;
-using Newtonsoft.Json.Serialization;
 using static Microsoft.Extensions.DependencyInjection.ActivatorUtilities;
 
 namespace HueUpdater
@@ -58,13 +56,15 @@ namespace HueUpdater
                 {
                     var appSettings = hostContext.Configuration.Get<AppSettings>().HueUpdater;
 
+                    var serializerSettings = NewtonsoftJsonSerializerSettingsFactory.Build();
+
                     services.AddSingleton(sp => appSettings.StatusUrls);
                     services.AddSingleton<IResolver<CIActivityStatus[], CIActivityStatus>, CIActivityStatusReducer>();
                     services.AddSingleton<IResolver<CIBuildStatus[], CIBuildStatus>, CIBuildStatusReducer>();
                     services.AddSingleton<IResolver<CIStatus[], CIStatus>, CIStatusReducer>();
 
                     services.AddSingleton<IResolver<LightStatusChangeQuery, HueAlert>, HueAlertResolver>();
-                    services.AddSingleton<ISerializer<LightStatus>>(sp => CreateInstance<JsonNetFileSerializer<LightStatus>>(sp, appSettings.Persistence.LightStatusFilePath));
+                    services.AddSingleton<ISerializer<LightStatus>>(sp => CreateInstance<NewtonsoftJsonFileSerializer<LightStatus>>(sp, appSettings.Persistence.LightStatusFilePath, serializerSettings));
                     services.AddSingleton<IResolver<CIStatus, LightColor>, LightColorResolver>();
 
                     services.AddSingleton(sp =>
@@ -87,25 +87,15 @@ namespace HueUpdater
                     services.AddSingleton<IResolver<string[], string>>(sp => CreateInstance<ScheduleNameResolver>(sp, appSettings.WorkPlan.Schedules));
                     services.AddSingleton<IResolver<DateTime, (string ScheduleName, ScheduleSettings Schedule)>>(sp => CreateInstance<ScheduleResolver>(sp, appSettings.WorkPlan.Schedules));
 
-                    services.AddHostedService<HueUpdaterService>();
+                    FlurlHttp.Configure(s => s.JsonSerializer = new NewtonsoftJsonSerializer(serializerSettings));
 
-                    ConfigureAppServices();
+                    services.AddHostedService<HueUpdaterService>();
                 })
                 .ConfigureLogging((hostContext, configLogging) =>
                 {
                     configLogging.AddConsole();
                 })
                 .UseConsoleLifetime();
-        }
-
-
-        /// <summary>
-        /// Configures the application services that require configuration.
-        /// </summary>
-        private static void ConfigureAppServices()
-        {
-            var jsonSettings = new JsonSerializerSettings { ContractResolver = new CamelCasePropertyNamesContractResolver() };
-            FlurlHttp.Configure(s => s.JsonSerializer = new NewtonsoftJsonSerializer(jsonSettings));
         }
 
     }
